@@ -54,7 +54,9 @@ void main()
     // Precise timing is more important than less current for this application.
     // CLKSEL = 0b00; // 0b00 - internal high-precision IRC, 0b11 - internal 32KHz low speed IRC
     COMPILE_TIME_ASSERT(0 < CLOCK_DIVISOR);
+#if 1 < CLOCK_DIVISOR
     CLKDIV = CLOCK_DIVISOR;
+#endif
     // HIRCCR = 1 << 7; // ENHIRC[7]
     // IRC32KCR = 0 << 7; // ENIRC32K[7]
     SFRX_OFF();
