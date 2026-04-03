@@ -34,28 +34,6 @@ static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
 void show() __naked
 {
 
-    // for (int i = 0; i < 7; ++i)
-    // {
-    //     NOP();
-    // }
-
-    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:69: for (int i = 0; i < 7; ++i)
-    //     mov	r7,#0x00
-    // 00113$:
-    //     cjne	r7,#0x07,00148$
-    // 00148$:
-    //     jc	00149$
-    //     ljmp	00101$
-    // 00149$:
-    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:71: NOP();
-    //     NOP
-    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:69: for (int i = 0; i < 7; ++i)
-    //     inc	r7
-    //     ljmp	00113$
-    // 00101$:
-
-
-
 
     // WS2812B
     // 0:  high 0.40 us, low 0.85 us
