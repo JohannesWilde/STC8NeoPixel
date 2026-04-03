@@ -72,46 +72,32 @@ void show() __naked
     "   push _PSW\n"                   // Program Status Word register (PSW)
     "   mov _PSW, #0x00\n"             // reset carry flags and select register bank 0 [A]
     "   push ar7\n"                    // Backup register 7 of bank 0 on stack.
+    "   push ar6\n"                    // Backup register 6 of bank 0 on stack.
     "; Transfer 32 bit -> 1 NeoPixel.\n"
-    "   mov r7,#32\n"
+    "   mov r7,#64\n"                  // [1]
     "; Start loop.\n"
     "001$:\n"
     "; Begin bit transmission by going HIGH.\n"
     "   setb _P5_5\n"                  // [1]
-    "   nop\n"                         // [1]
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
+
+    // mov [1] + 5 * jump [3] + 1 * not-jump [2] -> [18]
+    "   mov r6,#5\n"                  // [1]
+    "002$:\n"
+    "   djnz r6,002$\n"                // Decrement register and jump if not Zero [2/3]
+
     "; Second part of bit transmission by going LOW.\n"
     "   clr _P5_5\n"
+
+    // mov [1] + 2 * jump [3] + 1 * not-jump [2] -> [10]
+    "   mov r6,#2\n"                  // [1]
+    "003$:\n"
+    "   djnz r6,003$\n"                // Decrement register and jump if not Zero [2/3]
     "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
-    "   nop\n"
+
     "; Next byte?\n"
     "   djnz r7,001$\n"                // Decrement register and jump if not Zero [2/3]
-    // "   sjmp 001$\n"
-    // "   setb _P5_5\n" // for testing only
     "; Restore register values.\n"
+    "   pop ar6\n"                     // Restore register 6.
     "   pop ar7\n"                     // Restore register 7.
     "   pop _PSW\n"                    // Restore PSW.
     "   ret"
