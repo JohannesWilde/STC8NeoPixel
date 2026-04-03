@@ -16,7 +16,7 @@
 
 
 #define F_IRC 24000000ull  // Hz
-#define CLOCK_DIVISOR 12
+#define CLOCK_DIVISOR 1
 #define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
 #define F_SYS_TICK 1000ull  // Hz
 
