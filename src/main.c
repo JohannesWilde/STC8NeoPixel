@@ -81,13 +81,20 @@ void main()
 
     while (true)
     {
-        // // Test outside of interrupt routine.
-        // LED_PIN ^= 1;
-
         if (updatePrescaler(&preScalerOne, PRE_SCALER_ONE_INIT))
         {
             // Somewhat slower.
-            LED_PIN ^= 1;
+            // LED_PIN ^= 1;
+
+            __asm__ (
+                "; Toggle the LED at P1.2.\n"
+                "JBC P1.2, 001$\n"
+                "SETB P1.2\n"
+                "; Compensate for the jump taking 3 cycles, the not-jump only 1.\n"
+                "NOP\n"
+                "001$:"
+            );
+
         }
         else
         {
