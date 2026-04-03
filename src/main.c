@@ -86,16 +86,19 @@ void show() __naked
     "   djnz r6,002$\n"                // Decrement register and jump if not Zero [2/3]
 
     "; Second part of bit transmission by going LOW.\n"
-    "   clr _P5_5\n"
+    "   clr _P5_5\n"                    // [1]
 
-    // mov [1] + 2 * jump [3] + 1 * not-jump [2] -> [10]
-    "   mov r6,#2\n"                  // [1]
+    // mov [1] + 1 * jump [3] + 1 * not-jump [2] -> [6]
+    "   mov r6,#1\n"                   // [1]
     "003$:\n"
     "   djnz r6,003$\n"                // Decrement register and jump if not Zero [2/3]
-    "   nop\n"
+    "   nop\n"                         // [1]
+    "   nop\n"                         // [1]
 
     "; Next byte?\n"
     "   djnz r7,001$\n"                // Decrement register and jump if not Zero [2/3]
+    "   nop\n"                         // [1]
+
     "; Restore register values.\n"
     "   pop ar6\n"                     // Restore register 6.
     "   pop ar7\n"                     // Restore register 7.
