@@ -27,10 +27,6 @@ volatile Timestamp milliseconds_;
 void TM0_Isr(void) __interrupt (TF0_VECTOR)
 {
     /* action to be taken when timer 0 overflows */
-    // Toggle inside interrupt routine.
-    // LED_PIN ^= 1;
-
-
     COMPILE_TIME_ASSERT((1000ull / F_SYS_TICK) * F_SYS_TICK == 1000ull); // Prevent numeric precision loss in accumulation of ms.
     milliseconds_ += 1000 / F_SYS_TICK;
 
