@@ -30,8 +30,9 @@
 
 static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
 
+static uint32_t neoPixelData[3];
 
-void show() __naked
+void show(uint32_t const * data, uint8_t const length) __naked
 {
 
 
@@ -47,10 +48,8 @@ void show() __naked
 
     __asm__ (
     "; Backup register values.\n"
-    "   push _PSW\n"                   // Program Status Word register (PSW)
-    "   mov _PSW, #0x00\n"             // reset carry flags and select register bank 0 [A]
-    "   push ar7\n"                    // Backup register 7 of bank 0 on stack.
-    "   push ar6\n"                    // Backup register 6 of bank 0 on stack.
+    // "   push _bp\n"                    // Stack Frame Pointer pushed to stack.
+    // "   mov _bp,sp\n"                     // Stack Frame Pointer updated for this function.
     "; Transfer 32 bit -> 1 NeoPixel.\n"
     "   mov r7,#64\n"                  // [1]
     "; Start loop.\n"
@@ -78,9 +77,7 @@ void show() __naked
     "   nop\n"                         // [1]
 
     "; Restore register values.\n"
-    "   pop ar6\n"                     // Restore register 6.
-    "   pop ar7\n"                     // Restore register 7.
-    "   pop _PSW\n"                    // Restore PSW.
+    // "   pop _bp\n"                     // Restore Stack Frame Pointer.
     "   ret"
     );
 }
@@ -121,8 +118,10 @@ void main()
 
     interrupts(); // enable interrupts
 
-
-    show();
+    neoPixelData[0] = (0xffull << 24) | (0x00ull << 16) | (0x00ull << 8) | (0x00ull << 0);
+    neoPixelData[1] = (0x00ull << 24) | (0xffull << 16) | (0x00ull << 8) | (0x00ull << 0);
+    neoPixelData[2] = (0x00ull << 24) | (0x00ull << 16) | (0xffull << 8) | (0x00ull << 0);
+    show(neoPixelData, 1);
 
     while (true)
     {
