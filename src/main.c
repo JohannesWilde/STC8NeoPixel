@@ -13,6 +13,10 @@
 #define LED_PIN_NUMBER 2
 #define LED_PIN MAKE_PIN_NAME(LED_PORT_NUMBER, LED_PIN_NUMBER)
 
+#define NEO_PIXEL_PORT_NUMBER 5
+#define NEO_PIXEL_PIN_NUMBER 5
+#define NEO_PIXEL_PIN MAKE_PIN_NAME(NEO_PIXEL_PORT_NUMBER, NEO_PIXEL_PIN_NUMBER)
+
 
 #define F_WAKEUP_TIMER 36075  // Hz
 #define F_IRC 24000000ull  // Hz
@@ -27,14 +31,121 @@
 static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
 
 
+void show() __naked
+{
+
+    // for (int i = 0; i < 7; ++i)
+    // {
+    //     NOP();
+    // }
+
+    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:69: for (int i = 0; i < 7; ++i)
+    //     mov	r7,#0x00
+    // 00113$:
+    //     cjne	r7,#0x07,00148$
+    // 00148$:
+    //     jc	00149$
+    //     ljmp	00101$
+    // 00149$:
+    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:71: NOP();
+    //     NOP
+    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:69: for (int i = 0; i < 7; ++i)
+    //     inc	r7
+    //     ljmp	00113$
+    // 00101$:
+
+
+
+
+    // WS2812B
+    // 0:  high 0.40 us, low 0.85 us
+    // 1:  high 0.80 us, low 0.45 us
+    //
+    // @24 MHz:
+    // 0:  high  9.6 clk, low 20.4 clk
+    // 1:  high 19.2 clk, low 10.8 clk
+
+
+
+    __asm__ (
+    "; Backup register values.\n"
+    "   push _PSW\n"                   // Program Status Word register (PSW)
+    "   mov _PSW, #0x00\n"             // reset carry flags and select register bank 0 [A]
+    "   push ar7\n"                    // Backup register 7 of bank 0 on stack.
+    "; Transfer 32 bit -> 1 NeoPixel.\n"
+    "   mov r7,#32\n"
+    "; Start loop.\n"
+    "001$:\n"
+    "; Begin bit transmission by going HIGH.\n"
+    "   setb _P5_5\n"                  // [1]
+    "   nop\n"                         // [1]
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "; Second part of bit transmission by going LOW.\n"
+    "   clr _P5_5\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "   nop\n"
+    "; Next byte?\n"
+    "   djnz r7,001$\n"                // Decrement register and jump if not Zero [2/3]
+    // "   sjmp 001$\n"
+    // "   setb _P5_5\n" // for testing only
+    "; Restore register values.\n"
+    "   pop ar7\n"                     // Restore register 7.
+    "   pop _PSW\n"                    // Restore PSW.
+    "   ret"
+    );
+}
+
+
 // main()
 
 void main()
 {
+    LED_PIN = 0;
+    NEO_PIXEL_PIN = 0;
+
+    COMPILE_TIME_ASSERT(1 == LED_PORT_NUMBER);
     P1M0 = (0x00 /* DIO_MODE_HIGH_Z_INPUT_M0 */) |
            (DIO_MODE_PUSH_PULL_OUTPUT_M0 << LED_PIN_NUMBER);
     P1M1 = (0xff /* DIO_MODE_HIGH_Z_INPUT_M1 */) &
            ((DIO_MODE_PUSH_PULL_OUTPUT_M1 << LED_PIN_NUMBER) | ~(1 << LED_PIN_NUMBER));
+
+    COMPILE_TIME_ASSERT(5 == NEO_PIXEL_PORT_NUMBER);
+    P5M0 = (0x00 /* DIO_MODE_HIGH_Z_INPUT_M0 */) |
+           (DIO_MODE_PUSH_PULL_OUTPUT_M0 << NEO_PIXEL_PIN_NUMBER);
+    P5M1 = (0xff /* DIO_MODE_HIGH_Z_INPUT_M1 */) &
+           ((DIO_MODE_PUSH_PULL_OUTPUT_M1 << NEO_PIXEL_PIN_NUMBER) | ~(1 << NEO_PIXEL_PIN_NUMBER));
+
+
+    COMPILE_TIME_ASSERT(0 < CLOCK_DIVISOR);
+    #if 1 < CLOCK_DIVISOR
+        SFRX_ON();
+        CLKDIV = CLOCK_DIVISOR;
+        while (!(HIRCCR & 0x01));
+        SFRX_OFF();
+    #endif
 
     #define WAKEUP_TIMER_COUNT ((F_WAKEUP_TIMER / F_SYS_TICK / 16) - 1)
     COMPILE_TIME_ASSERT((1ull << 15) > WAKEUP_TIMER_COUNT);
@@ -43,7 +154,8 @@ void main()
 
     interrupts(); // enable interrupts
 
-    LED_PIN = 0;
+
+    show();
 
     while (true)
     {
@@ -54,7 +166,7 @@ void main()
 
             __asm__ (
                 "; Toggle the LED at P1.2.\n"
-                "CPL P1.2"
+                "CPL _P1_2"
             );
 
         }
