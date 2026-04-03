@@ -20,12 +20,8 @@
 #define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
 #define F_SYS_TICK 20  // Hz
 
-// TM1637 driver
-// static uint8_t tm1637DisplayControl; // remember On/Off and brightness as I can't read it back.
-
-
 // Prescaler for different time domains.
-// 1000 Hz -> 20 Hz
+// 20 Hz -> 2 Hz
 #define PRE_SCALER_ONE_INIT (10 - 1)
 
 static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
@@ -58,11 +54,7 @@ void main()
 
             __asm__ (
                 "; Toggle the LED at P1.2.\n"
-                "JBC P1.2, 001$\n"
-                "SETB P1.2\n"
-                "; Compensate for the jump taking 3 cycles, the not-jump only 1.\n"
-                "NOP\n"
-                "001$:"
+                "CPL P1.2"
             );
 
         }
