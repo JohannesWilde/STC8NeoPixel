@@ -1,15 +1,13 @@
 
-add_subdirectory(implementations)
-
 add_executable(${PROJECT_NAME}
     8051_helpers.h
     main.c
     stc8g.h
 )
 
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE Specifics
-)
+# target_link_libraries(${PROJECT_NAME}
+#     PRIVATE
+# )
 
 ihx_to_hex(${PROJECT_NAME})
 
