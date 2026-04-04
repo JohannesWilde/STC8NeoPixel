@@ -329,6 +329,8 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	mov	a,@r0\n"
     "	mov	r3,a\n"         // r3 = byteLength
     "	mov	r4,#0x00\n"     // byteIndex = 0
+
+    // The following is the inner loop and must be timed precisely for the bits to be correct for the WS2812.
     "001$:\n"
     "	mov	a,r4\n"         // byteIndex
     "	clr	c\n"
@@ -339,7 +341,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	lcall	__gptrget\n"
     "	mov	r7,a\n"         // r7 = datum = data[byteIndex]
     "	inc dptr\n"         // ++byteIndex                      1 [1]
-    "	mov	r6,#0x08\n" // bitIndex = 8
+    "	mov	r6,#0x08\n"     // bitIndex = 8
     "004$:\n"
     "	clr	c\n"
     "	mov	a,#0x00\n"
@@ -433,6 +435,8 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "006$:\n"
     "	inc	r4\n"
     "	ljmp	001$\n"
+
+    // Here the loop is over, so no precise timing required anymore.
     "003$:\n"
     "	mov	sp,_bp\n"
     "	pop	_bp\n"
