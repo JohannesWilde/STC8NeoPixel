@@ -119,7 +119,22 @@ void show(uint8_t const * data, uint8_t const length) /*__naked*/
     //      __endasm;
     // }
 
-
+    // The effective commands without an jumps and register restoring are:
+    //
+    // xdata [0x00]:
+    //      movx    a,@dptr                                 ; 1 [2]
+    //
+    // idata [0x40]:
+    //      mov     r0,dpl ; use only low order address     ; 2 [1]
+    //      mov     a,@r0                                   ; 1 [1]
+    //
+    // pdata [0x60]:
+    //      mov     r0,dpl ; use only low order address     ; 2 [1]
+    //      movx    a,@r0                                   ; 1 [3]
+    //
+    // code [0x80]:
+    //      clr     a                                       ; 1 [1]
+    //      movc    a,@a+dptr                               ; 1 [4]
 
 
 
