@@ -111,10 +111,10 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "013$:\n"
     "   djnz r5,013$\n"     // Decrement register and jump if not Zero     2 [2/3]          19
     "	clr	_P5_5\n"        //                                  2 [1]                       _1
-    "   mov r5,#2\n"        // 1 = 1 [jump] + 1 [not jump]      2 [1]                       _2
-    "014$:\n"
-    "   djnz r5,014$\n"     // Decrement register and jump if not Zero     2 [2/3]          _7
-    "	nop	\n"             //                                                              _8
+    // "   mov r5,#2\n"        // 1 = 1 [jump] + 1 [not jump]      2 [1]                    _2
+    // "014$:\n"
+    // "   djnz r5,014$\n"     // Decrement register and jump if not Zero     2 [2/3]       _7
+    // "	nop	\n"             //                                                          _8
     "	ljmp	009$\n"     //                                  3 [3]                       _11
 
     // bit 0 transmission
@@ -125,7 +125,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	nop	\n"             //                                                                      9
     "	nop	\n"             //                                                                      10
     "	clr	_P5_5\n"        //                                  2 [1]                               _1
-    "   mov r5,#6\n"        // 6 = 5 [jump] + 1 [not jump]      2 [1]                               _2
+    "   mov r5,#3\n"        // 6 - 3 = 5 - 3 [jump] + 1 [not jump]      2 [1]                       _2
     "015$:\n"
     "   djnz r5,015$\n"     // Decrement register and jump if not Zero     2 [2/3]                  _19
     "	NOP	\n"             //                                                                      _20
@@ -143,8 +143,6 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     );
 }
 
-
-// main()
 
 void main()
 {
