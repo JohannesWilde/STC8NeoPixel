@@ -60,6 +60,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // @24 MHz:
     // 0:  high  9.6 clk, low 20.4 clk
     // 1:  high 19.2 clk, low 10.8 clk
+    COMPILE_TIME_ASSERT(24000000 == F_CPU);
 
     // b - memory type
     // [dpl, dph] - *data
