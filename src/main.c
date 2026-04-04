@@ -21,7 +21,7 @@
 
 #define F_WAKEUP_TIMER 36075  // Hz
 #define F_IRC 24000000ull  // Hz
-#define CLOCK_DIVISOR 3
+#define CLOCK_DIVISOR 1
 #define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
 #define F_SYS_TICK 20  // Hz
 
@@ -38,7 +38,7 @@ static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
 #define NEO_PIXEL_DATA_OFFSET_BLUE 2
 #define NEO_PIXEL_DATA_OFFSET_WHITE 3
 
-static uint8_t neoPixelData[4 * /*bytes per pixel*/4];
+static uint8_t neoPixelData[9 * NEO_PIXEL_DATA_BYTES_PER_PIXEL];
 
 
 
@@ -256,6 +256,11 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     );
 }
 
+#define BRIGHTNESS_DELTA_STEP 5
+
+static uint8_t colorBrightness;
+static uint8_t colorDelta = BRIGHTNESS_DELTA_STEP;
+
 
 void main()
 {
@@ -290,27 +295,6 @@ void main()
 
     interrupts(); // enable interrupts
 
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0xff;
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0x00;
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0x00;
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0x00;
-    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0x00;
-    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0xff;
-    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0x00;
-    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0x00;
-    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0x00;
-    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0x00;
-    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0xff;
-    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0x00;
-    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0x00;
-    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0x00;
-    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0x00;
-    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0xff;
-
-#define BRIGHTNESS_DELTA_STEP 5
-
-    uint8_t colorBrightness = 0;
-    uint8_t colorDelta = BRIGHTNESS_DELTA_STEP;
     while (true)
     {
         if (BRIGHTNESS_DELTA_STEP > colorBrightness)
@@ -332,8 +316,13 @@ void main()
         neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = colorBrightness;
         neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = colorBrightness;
         neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = colorBrightness;
+        neoPixelData[4 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = colorBrightness;
+        neoPixelData[5 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = colorBrightness;
+        neoPixelData[6 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = colorBrightness;
+        neoPixelData[7 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = colorBrightness;
+        neoPixelData[8 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = colorBrightness;
 
-        show(neoPixelData, /*bytes*/ 4 * 4);
+        show(neoPixelData, /*bytes*/ 9 * NEO_PIXEL_DATA_BYTES_PER_PIXEL);
 
         if (updatePrescaler(&preScalerOne, PRE_SCALER_ONE_INIT))
         {
