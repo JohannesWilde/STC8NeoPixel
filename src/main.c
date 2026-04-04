@@ -69,8 +69,19 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // r7 -
 
     __asm__ (
-    "	push	_bp\n"
+    "	push _bp\n"
     "	mov	_bp,sp\n"
+
+    "	push _PSW\n" // indirectly modified with carry-flag
+    "	push a\n"
+    // "	push b\n" // unmodified in this function
+    "	push dpl\n"
+    "	push dph\n"
+    "	push ar0\n"
+    "	push ar4\n"
+    "	push ar5\n"
+    "	push ar6\n"
+
     "	mov	a,_bp\n"        // readout "length" from stack [--stack-auto or reentrant].
     "	add	a,#0xfd\n"      // stack frame address - 3 [_bp, return address from lcall]
     "	mov	r0,a\n"
@@ -226,6 +237,17 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	ljmp	004$\n"     //                                  3 [3]
 
     "003$:\n"
+
+    "	pop ar6\n"
+    "	pop ar5\n"
+    "	pop ar4\n"
+    "	pop ar0\n"
+    "	pop dph\n"
+    "	pop dpl\n"
+    // "	push b\n" // unmodified in this function
+    "	pop a\n"
+    "	pop _PSW\n" // indirectly modified with carry-flag
+
     "	mov	sp,_bp\n"
     "	pop	_bp\n"
     "	ret\n"
