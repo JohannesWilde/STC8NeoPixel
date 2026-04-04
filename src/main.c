@@ -42,7 +42,7 @@ static uint8_t neoPixelData[4 * /*bytes per pixel*/4];
 
 
 
-void show(uint8_t const * data, uint8_t const length) /*__naked*/
+void show(uint8_t const * data, uint8_t const length) __naked
 {
 
 #if defined(DSDCC_MODEL_HUGE) || defined(DSDCC_MODEL_MEDIUM) || defined(__SDCC_ds390)
@@ -310,41 +310,114 @@ void show(uint8_t const * data, uint8_t const length) /*__naked*/
     // 1:  high 19.2 clk, low 10.8 clk
 
 
-
     __asm__ (
-    "; Backup register values.\n"
-    // "   push _bp\n"                    // Stack Frame Pointer pushed to stack.
-    // "   mov _bp,sp\n"                     // Stack Frame Pointer updated for this function.
-    "; Transfer 32 bit -> 1 NeoPixel.\n"
-    "   mov r7,#64\n"                  // [1]
-    "; Start loop.\n"
+    "	ar7 = 0x07\n"
+    "	ar6 = 0x06\n"
+    "	ar5 = 0x05\n"
+    "	ar4 = 0x04\n"
+    "	ar3 = 0x03\n"
+    "	ar2 = 0x02\n"
+    "	ar1 = 0x01\n"
+    "	ar0 = 0x00\n"
+    "	push	_bp\n"
+    "	mov	_bp,sp\n"
+    "	push	dpl\n"
+    "	push	dph\n"
+    "	push	b\n"
+    "	mov	r4,#0x00\n"
+    "00113$:\n"
+    "	mov	a,_bp\n"
+    "	add	a,#0xfd\n"
+    "	mov	r0,a\n"
+    "	clr	c\n"
+    "	mov	a,r4\n"
+    "	subb	a,@r0\n"
+    "	jc	00155$\n"
+    "	ljmp	00108$\n"
+    "00155$:\n"
+    "	mov	r0,_bp\n"
+    "	inc	r0\n"
+    "	mov	a,r4\n"
+    "	add	a, @r0\n"
+    "	mov	r2,a\n"
+    "	mov	a,#0x00\n"
+    "	inc	r0\n"
+    "	addc	a, @r0\n"
+    "	mov	r3,a\n"
+    "	inc	r0\n"
+    "	mov	ar7,@r0\n"
+    "	mov	dpl,r2\n"
+    "	mov	dph,r3\n"
+    "	mov	b,r7\n"
+    "	lcall	__gptrget\n"
+    "	mov	r7,a\n"
+    "	mov	r6,#0x08\n"
+    "00110$:\n"
+    "	clr	c\n"
+    "	mov	a,#0x00\n"
+    "	subb	a,r6\n"
+    "	jc	00156$\n"
+    "	ljmp	00114$\n"
+    "00156$:\n"
+    "	mov	a,r7\n"
+    "	rlc	a\n"
+    "	mov	b0,c\n"
+    "	setb	_P5_5\n"
+    "	jb	b0,00157$\n"
+    "	ljmp	00102$\n"
+    "00157$:\n"
+    "	NOP	\n"
+    "	ljmp	00103$\n"
+    "00102$:\n"
+    "	NOP	\n"
+    "00103$:\n"
+    ";	assignBit\n"
+    "	clr	_P5_5\n"
+    "	jb	b0,00158$\n"
+    "	ljmp	00105$\n"
+    "00158$:\n"
+    "	NOP	\n"
+    "	ljmp	00106$\n"
+    "00105$:\n"
+    "	NOP	\n"
+    "00106$:\n"
+    "	mov	a,r7\n"
+    "	add	a,acc\n"
+    "	mov	r7,a\n"
+    "	dec	r6\n"
+    "	ljmp	00110$\n"
+    "00114$:\n"
+    "	inc	r4\n"
+    "	ljmp	00113$\n"
+    "00108$:\n"
+    ";	Backup register values.\n"
+    ";	Transfer 32 bit -> 1 NeoPixel.\n"
+    "	mov	r7,#64\n"
+    ";	Start loop.\n"
     "001$:\n"
-    "; Begin bit transmission by going HIGH.\n"
-    "   setb _P5_5\n"                  // [1]
-
-    // mov [1] + 5 * jump [3] + 1 * not-jump [2] -> [18]
-    "   mov r6,#5\n"                  // [1]
+    ";	Begin bit transmission by going HIGH.\n"
+    "	setb	_P5_5\n"
+    "	mov	r6,#5\n"
     "002$:\n"
-    "   djnz r6,002$\n"                // Decrement register and jump if not Zero [2/3]
-
-    "; Second part of bit transmission by going LOW.\n"
-    "   clr _P5_5\n"                    // [1]
-
-    // mov [1] + 1 * jump [3] + 1 * not-jump [2] -> [6]
-    "   mov r6,#1\n"                   // [1]
+    "	djnz	r6,002$\n"
+    ";	Second part of bit transmission by going LOW.\n"
+    "	clr	_P5_5\n"
+    "	mov	r6,#1\n"
     "003$:\n"
-    "   djnz r6,003$\n"                // Decrement register and jump if not Zero [2/3]
-    "   nop\n"                         // [1]
-    "   nop\n"                         // [1]
-
-    "; Next byte?\n"
-    "   djnz r7,001$\n"                // Decrement register and jump if not Zero [2/3]
-    "   nop\n"                         // [1]
-
-    "; Restore register values.\n"
-    // "   pop _bp\n"                     // Restore Stack Frame Pointer.
-    "   ret"
+    "	djnz	r6,003$\n"
+    "	nop\n"
+    "	nop\n"
+    ";	Next byte?\n"
+    "	djnz	r7,001$\n"
+    "	nop\n"
+    ";	Restore register values.\n"
+    "	ret\n"
+    "00115$:\n"
+    "	mov	sp,_bp\n"
+    "	pop	_bp\n"
+    "	ret\n"
     );
+
 }
 
 
