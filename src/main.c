@@ -325,8 +325,8 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	mov	_bp,sp\n"
     "	mov	a,_bp\n"        // readout "length" from stack [--stack-auto or reentrant].
     "	add	a,#0xfd\n"      // stack frame address - 3 [_bp, return address from lcall]
-    "	mov	r3,a\n"
-    "	mov	a,@r3\n"
+    "	mov	r0,a\n"
+    "	mov	a,@r0\n"
     "	mov	r3,a\n"         // r3 = byteLength
     "	mov	r4,#0x00\n"     // byteIndex = 0
     "00113$:\n"
