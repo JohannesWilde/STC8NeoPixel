@@ -21,7 +21,7 @@
 
 #define F_WAKEUP_TIMER 36075  // Hz
 #define F_IRC 24000000ull  // Hz
-#define CLOCK_DIVISOR 100
+#define CLOCK_DIVISOR 1
 #define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
 #define F_SYS_TICK 20  // Hz
 
@@ -163,120 +163,178 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // r6 - remainingBits
     // r7 - datum
 
+    // __asm__ (
+    // "	push	_bp\n"
+    // "	mov	_bp,sp\n"
+    // "	mov	a,_bp\n"        // readout "length" from stack [--stack-auto or reentrant].
+    // "	add	a,#0xfd\n"      // stack frame address - 3 [_bp, return address from lcall]
+    // "	mov	r0,a\n"
+    // "	mov	a,@r0\n"
+    // "	mov	r4,a\n"         // r4 = byteLength = "remainingBytes"
+    // "   inc r4\n"             // Increment r4 so that djnz can decrement and then compare to 0 the right amount of times.
+
+    // // The following is the inner loop and must be timed precisely for the bits to be correct for the WS2812.
+    // // Or do I have to be precise only on a single-bit basis and just ensure that between bits is less than T_res = 50 us?
+
+    // "001$:\n"
+    // "	djnz r4, 002$\n"    // if (0 != --remainingBytes)       2 [2/3]
+    // "	ljmp	003$\n"     // else                             3 [3]
+    // "002$:\n"
+    // "	lcall	__gptrget\n"
+    // "	mov	r7,a\n"         // r7 = datum = data[byteIndex]
+    // "	inc dptr\n"         // ++byteIndex                      1 [1]
+    // "	mov	r6,#0x09\n"     // remainingBits = 8 + 1            2 [1]
+    // "004$:\n"
+    // "	djnz r6, 005$\n"    // if (0 != --remainingBits)        2 [2/3]
+    // "	ljmp	006$\n"     //                                  3 [3]
+    // "005$:\n"
+    // "	mov	a,r7\n"         //                                  1 [1]
+    // "	rlc	a\n"            //                                  1 [1]
+    // "	setb	_P5_5\n"    //                                  2 [1]
+    // "	jc	007$\n"         //                                  2 [1/3]
+    // "	ljmp	008$\n"     //                                  3 [3]
+    // "007$:\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	ljmp	009$\n"     //                                  3 [3]
+    // "008$:\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "009$:\n"
+    // ";	assignBit\n"
+    // "	clr	_P5_5\n"        //                                  2 [1]
+    // "	jc	010$\n"         //                                  2 [1/3]
+    // "	ljmp	011$\n"     //                                  3 [3]
+    // "010$:\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	ljmp 012$\n"        //                                  3 [3]
+    // "011$:\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "	NOP	\n"
+    // "012$:\n"
+    // "	mov	r7,a\n"         //                                  1 [1]
+    // "	ljmp	004$\n"     //                                  3 [3]
+    // "006$:\n"
+    // "	ljmp	001$\n"     //                                  3 [3]
+
+    // // Here the loop is over, so no precise timing required anymore.
+    // "003$:\n"
+    // "	mov	sp,_bp\n"
+    // "	pop	_bp\n"
+    // "	ret\n"
+    // );
+
+
+
     __asm__ (
-    "	push	_bp\n"
-    "	mov	_bp,sp\n"
-    "	mov	a,_bp\n"        // readout "length" from stack [--stack-auto or reentrant].
-    "	add	a,#0xfd\n"      // stack frame address - 3 [_bp, return address from lcall]
-    "	mov	r0,a\n"
-    "	mov	a,@r0\n"
-    "	mov	r4,a\n"         // r4 = byteLength = "remainingBytes"
-    "   inc r4\n"             // Increment r4 so that djnz can decrement and then compare to 0 the right amount of times.
-
-    // The following is the inner loop and must be timed precisely for the bits to be correct for the WS2812.
-    "001$:\n"
-    "	djnz r4, 002$\n"    // if (0 != --remainingBytes)       2 [2/3]
-    "	ljmp	003$\n"     // else                             3 [3]
-    "002$:\n"
-    "	lcall	__gptrget\n"
-    "	mov	r7,a\n"         // r7 = datum = data[byteIndex]
-    "	inc dptr\n"         // ++byteIndex                      1 [1]
-    "	mov	r6,#0x09\n"     // remainingBits = 8 + 1            2 [1]
-    "004$:\n"
-    "	djnz r6, 005$\n"    // if (0 != --remainingBits)        2 [2/3]
-    "	ljmp	006$\n"     //                                  3 [3]
-    "005$:\n"
-    "	mov	a,r7\n"         //                                  1 [1]
-    "	rlc	a\n"            //                                  1 [1]
-    "	setb	_P5_5\n"    //                                  2 [1]
-    "	jc	007$\n"         //                                  2 [1/3]
-    "	ljmp	008$\n"     //                                  3 [3]
-    "007$:\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	ljmp	009$\n"     //                                  3 [3]
-    "008$:\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "009$:\n"
-    ";	assignBit\n"
-    "	clr	_P5_5\n"        //                                  2 [1]
-    "	jc	010$\n"         //                                  2 [1/3]
-    "	ljmp	011$\n"     //                                  3 [3]
-    "010$:\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	ljmp 012$\n"        //                                  3 [3]
-    "011$:\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "012$:\n"
-    "	mov	r7,a\n"         //                                  1 [1]
-    "	ljmp	004$\n"     //                                  3 [3]
-    "006$:\n"
-    "	ljmp	001$\n"     //                                  3 [3]
-
-    // Here the loop is over, so no precise timing required anymore.
-    "003$:\n"
-    "	mov	sp,_bp\n"
-    "	pop	_bp\n"
-    "	ret\n"
+        "; Backup register values.\n"
+        "   push _PSW\n"                   // Program Status Word register (PSW)
+        "   mov _PSW, #0x00\n"             // reset carry flags and select register bank 0 [A]
+        "   push ar7\n"                    // Backup register 7 of bank 0 on stack.
     );
 
-}
+    __asm__ (
+        "; Transfer 32 bit -> 1 NeoPixel.\n"
+        "   mov r7,#32\n"
+        "; Start loop.\n"
+        "001$:\n"
+        "; Begin bit transmission by going HIGH.\n"
+        "   setb _P5_5\n"                  // [1]
+        "   nop\n"                         // [1]
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "; Second part of bit transmission by going LOW.\n"
+        "   clr _P5_5\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "   nop\n"
+        "; Next byte?\n"
+        "   djnz r7,001$\n"                // Decrement register and jump if not Zero [2/3]
+    );
 
+    __asm__ (
+        // "   sjmp 001$\n"
+        // "   setb _P5_5\n" // for testing only
+        "; Restore register values.\n"
+        "   pop ar7\n"                     // Restore register 7.
+        "   pop _PSW\n"                    // Restore PSW.
+        "   ret"
+    );
+}
 
 // main()
 
@@ -329,7 +387,10 @@ void main()
     neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0x00;
     neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0x00;
     neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0xff;
-    show(neoPixelData, /*bytes*/ 2);
+    for (int i = 0; 4 > i; ++i)
+    {
+        show(neoPixelData, /*bytes*/ 2);
+    }
 
     while (true)
     {
