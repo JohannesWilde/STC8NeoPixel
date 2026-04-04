@@ -59,14 +59,14 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
 
     // b - memory type
     // [dpl, dph] - *data
-    // r0 -
+    // r0 - temporary/datum
     // r1 -
     // r2 -
     // r3 -
     // r4 - remainingBytes
     // r5 - counter
     // r6 - remainingBits
-    // r7 - datum
+    // r7 -
 
     __asm__ (
     "	push	_bp\n"
@@ -82,16 +82,16 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	ljmp	003$\n"     // else                             3 [3]
     "002$:\n"
     "	lcall	__gptrget\n"
-    "	mov	r7,a\n"         // r7 = datum = data[byteIndex]
+    "	mov	r0,a\n"         // r0 = datum = data[byteIndex]
     "	inc dptr\n"         // ++byteIndex                      1 [1]
     "	mov	r6,#0x09\n"     // remainingBits = 8 + 1            2 [1]
     "004$:\n"
     "	djnz r6, 005$\n"    // if (0 != --remainingBits)        2 [2/3]
     "	ljmp	001$\n"     //                                  3 [3]
     "005$:\n"
-    "	mov	a,r7\n"         //                                  1 [1]
+    "	mov	a,r0\n"         //                                  1 [1]
     "	rlc	a\n"            // datum & 0x80 in carry            1 [1]
-    "	mov	r7,a\n"         // datm <<= 1                       1 [1]
+    "	mov	r0,a\n"         // datm <<= 1                       1 [1]
 
     // The following is the inner loop and must be timed precisely for each bit to be correct for the WS2812.
     // Please note, that as long as the inter-bit times are smaller than the reset time, it will be cascaded correctly.
@@ -285,8 +285,8 @@ void main()
 
 #define BRIGHTNESS_DELTA_STEP 5
 
-    static uint8_t colorBrightness = 0;
-    static uint8_t colorDelta = BRIGHTNESS_DELTA_STEP;
+    uint8_t colorBrightness = 0;
+    uint8_t colorDelta = BRIGHTNESS_DELTA_STEP;
     while (true)
     {
         if (BRIGHTNESS_DELTA_STEP > colorBrightness)
