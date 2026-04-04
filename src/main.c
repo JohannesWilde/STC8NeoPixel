@@ -341,13 +341,12 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	mov	r6,#0x09\n"     // remainingBits = 8 + 1            2 [1]
     "004$:\n"
     "	djnz r6, 005$\n"    // if (0 != --remainingBits)        2 [2/3]
-    "	ljmp	006$\n"     //                                  3 [1/3]
+    "	ljmp	006$\n"     //                                  3 [3]
     "005$:\n"
     "	mov	a,r7\n"         //                                  1 [1]
     "	rlc	a\n"            //                                  1 [1]
-    "	mov	b0,c\n"         //                                  2 [1]
     "	setb	_P5_5\n"    //                                  2 [1]
-    "	jb	b0,007$\n"      //                                  3 [1/3]
+    "	jc	007$\n"         //                                  2 [1/3]
     "	ljmp	008$\n"     //                                  3 [3]
     "007$:\n"
     "	NOP	\n"
@@ -384,7 +383,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "009$:\n"
     ";	assignBit\n"
     "	clr	_P5_5\n"        //                                  2 [1]
-    "	jb	b0,010$\n"      //                                  3 [1/3]
+    "	jc	010$\n"         //                                  2 [1/3]
     "	ljmp	011$\n"     //                                  3 [3]
     "010$:\n"
     "	NOP	\n"
@@ -421,8 +420,6 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	NOP	\n"
     "	NOP	\n"
     "012$:\n"
-    "	mov	a,r7\n"         //                                  1 [1]
-    "	add	a,acc\n"        //                                  2 [1]
     "	mov	r7,a\n"         //                                  1 [1]
     "	ljmp	004$\n"     //                                  3 [3]
     "006$:\n"
