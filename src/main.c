@@ -44,6 +44,85 @@ static uint8_t neoPixelData[4 * /*bytes per pixel*/4];
 void show(uint8_t const * data, uint8_t const length) /*__naked*/
 {
 
+#if defined(DSDCC_MODEL_HUGE) || defined(DSDCC_MODEL_MEDIUM) || defined(__SDCC_ds390)
+    // I only counted clock cycles of __gptrget for --model-small.
+    COMPILE_TIME_ASSERT(false);
+#endif
+
+    // jb      _B_7,codeptr$        ; >0x80 code       ; 3
+    // sjmp    .                                       ; 2
+
+
+    // 4.1.5.1 Global Registers used for Parameter Passing
+    // The compiler always uses the global registers DPL, DPH, B and ACC to pass the first (non-bit, non-struct) parameter
+    // to a function, and also to pass the return value of function; according to the following scheme: one byte return value in
+    // DPL, two byte value in DPL (LSB) and DPH (MSB). three byte values (generic pointers) in DPH, DPL and B, and four
+    // byte values in DPH, DPL, B and ACC. Generic pointers contain type of accessed memory in B: 0x00 – xdata/far, 0x40 –
+    // idata/near – , 0x60 – pdata, 0x80 – code.
+    //
+    //              B       _gptrget cycles
+    // xdata/far    0x00    9
+    // idata/near   0x40    11
+    // pdata        0x60    18                          [paged data - i.e. for 8-bit access to xdata-space of up to 0xff bytes]
+    // code         0x80    11
+    //
+    // https://github.com/swegener/sdcc/blob/32d54288f93a1337c369e7d293bfa58cd0b0bc5f/device/lib/_gptrget.c
+    //
+    // void
+    // _gptrget (char *gptr) __naked
+    // {
+    // /* This is the new version with pointers up to 16 bits.
+    //    B cannot be trashed */
+    //
+    //     gptr; /* hush the compiler */
+    //
+    //     __asm
+    //     ;
+    //     ;   depending on the pointer type acc. to SDCCsymt.h
+    //     ;
+    //         jb      _B_7,codeptr$        ; >0x80 code       ; 3 [1/3]
+    //         jnb     _B_6,xdataptr$       ; <0x40 far        ; 3 [1/3]
+    //
+    //         mov     dph,r0 ; save r0 independent of regbank ; 2 [1]
+    //         mov     r0,dpl ; use only low order address     ; 2 [1]
+    //
+    //         jb      _B_5,pdataptr$       ; >0x60 pdata      ; 3 [1/3]
+    //     ;
+    //     ;   Pointer to data space
+    //     ;
+    //         mov     a,@r0                                   ; 1 [1]
+    //  dataptrrestore$:
+    //         mov     r0,dph ; restore r0                     ; 2 [1]
+    //         mov     dph,#0 ; restore dph                    ; 3 [1]
+    //         ret                                             ; 1 [3]
+    //     ;
+    //     ;   pointer to xternal stack or pdata
+    //     ;
+    //  pdataptr$:
+    //         movx    a,@r0                                   ; 1 [3]
+    //         sjmp    dataptrrestore$                         ; 2 [3]
+    //     ;
+    //     ;   pointer to code area, max 16 bits
+    //     ;
+    //  codeptr$:
+    //         clr     a                                       ; 1 [1]
+    //         movc    a,@a+dptr                               ; 1 [4]
+    //         ret                                             ; 1 [3]
+    //     ;
+    //     ;   pointer to xternal data, max 16 bits
+    //     ;
+    //  xdataptr$:
+    //         movx    a,@dptr                                 ; 1 [2]
+    //         ret                                             ; 1 [3]
+    //                                                         ;===
+    //                                                         ;28 bytes
+    //      __endasm;
+    // }
+
+
+
+
+
     // for (uint8_t index = 0; length > index; ++index)
     // {
     //     uint8_t datum = data[index];
@@ -151,6 +230,9 @@ void show(uint8_t const * data, uint8_t const length) /*__naked*/
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:123: }
     //     pop	_bp
     //     ret
+
+
+
 
 
     // WS2812B
