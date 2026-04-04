@@ -91,7 +91,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	mov	r6,#0x09\n"     // remainingBits = 8 + 1            2 [1]
     "004$:\n"
     "	djnz r6, 005$\n"    // if (0 != --remainingBits)        2 [2/3]
-    "	ljmp	006$\n"     //                                  3 [3]
+    "	ljmp	001$\n"     //                                  3 [3]
     "005$:\n"
     "	mov	a,r7\n"         //                                  1 [1]
     "	rlc	a\n"            // datum & 0x80 in carry            1 [1]
@@ -133,8 +133,6 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
 
     // Here the single bit is over, so no precise timing required anymore.
     "	ljmp	004$\n"     //                                  3 [3]
-    "006$:\n"
-    "	ljmp	001$\n"     //                                  3 [3]
 
     "003$:\n"
     "	mov	sp,_bp\n"
