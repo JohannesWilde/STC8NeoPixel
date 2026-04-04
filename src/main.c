@@ -125,7 +125,7 @@ void show(uint8_t const * data, uint8_t const length) __naked
     //      __endasm;
     // }
 
-    // The effective commands without an jumps and register restoring are:
+    // The effective commands without any jumps and register restoring are:
     //
     // xdata [0x00]:
     //      movx    a,@dptr                                 ; 1 [2]
@@ -311,14 +311,6 @@ void show(uint8_t const * data, uint8_t const length) __naked
 
 
     __asm__ (
-    "	ar7 = 0x07\n"
-    "	ar6 = 0x06\n"
-    "	ar5 = 0x05\n"
-    "	ar4 = 0x04\n"
-    "	ar3 = 0x03\n"
-    "	ar2 = 0x02\n"
-    "	ar1 = 0x01\n"
-    "	ar0 = 0x00\n"
     "	push	_bp\n"
     "	mov	_bp,sp\n"
     "	push	dpl\n"
