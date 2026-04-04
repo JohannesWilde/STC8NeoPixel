@@ -81,6 +81,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	push ar4\n"
     "	push ar5\n"
     "	push ar6\n"
+
     "   orl _PSW,#0x18\n"     // select register bank 0 explicitely
 
     "	mov	a,_bp\n"        // readout "length" from stack [--stack-auto or reentrant].
