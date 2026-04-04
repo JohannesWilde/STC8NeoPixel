@@ -317,7 +317,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // r3 -
     // r4 - remainingBytes
     // r5 -
-    // r6 - bitIndex
+    // r6 - remainingBits
     // r7 -
 
     __asm__ (
@@ -338,12 +338,9 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	lcall	__gptrget\n"
     "	mov	r7,a\n"         // r7 = datum = data[byteIndex]
     "	inc dptr\n"         // ++byteIndex                      1 [1]
-    "	mov	r6,#0x08\n"     // bitIndex = 8                     2 [1]
+    "	mov	r6,#0x09\n"     // remainingBits = 8 + 1            2 [1]
     "004$:\n"
-    "	mov	a,#0x00\n"      //                                  2 [1]
-    "	clr	c\n"            //                                  1 [1]
-    "	subb a,r6\n"        //                                  1 [1]
-    "	jc	005$\n"         //                                  2 [1/3]
+    "	djnz r6, 005$\n"    // if (0 != --remainingBits)        2 [2/3]
     "	ljmp	006$\n"     //                                  3 [1/3]
     "005$:\n"
     "	mov	a,r7\n"         //                                  1 [1]
@@ -427,7 +424,6 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	mov	a,r7\n"
     "	add	a,acc\n"
     "	mov	r7,a\n"
-    "	dec	r6\n"
     "	ljmp	004$\n"
     "006$:\n"
     "	ljmp	001$\n"
