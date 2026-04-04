@@ -284,13 +284,18 @@ void main()
     neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0xff;
     show(neoPixelData, /*bytes*/ 4 * 4);
 
+    uint8_t wakeupTime = 0;
+
     while (true)
     {
         if (updatePrescaler(&preScalerOne, PRE_SCALER_ONE_INIT))
         {
             // Somewhat slower.
-            // LED_PIN ^= 1;
 
+            neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = wakeupTime;
+            show(neoPixelData, /*bytes*/ 4 * 4);
+
+            // LED_PIN ^= 1;
             __asm__ (
                 "; Toggle the LED at P1.2.\n"
                 "CPL _P1_2"
@@ -302,6 +307,16 @@ void main()
             // intentionally empty
         }
 
+        wakeupTime = 0;
         PCON |= 0x02;  // PCON.PD = 1 - Enter power-down mode
+        SFRX_ON();
+        while (!(HIRCCR & 0x01))
+        {
+            if (UCHAR_MAX < wakeupTime)
+            {
+                ++wakeupTime;
+            }
+        }
+        SFRX_OFF();
     }
 }
