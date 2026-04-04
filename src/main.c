@@ -314,7 +314,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // r0 -
     // r1 -
     // r2 -
-    // r3 -
+    // r3 - byteLength
     // r4 - byteIndex
     // r5 -
     // r6 - bitIndex
@@ -323,16 +323,18 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     __asm__ (
     "	push	_bp\n"
     "	mov	_bp,sp\n"
+    "	mov	a,_bp\n"        // readout "length" from stack [--stack-auto or reentrant].
+    "	add	a,#0xfd\n"      // stack frame address - 3 [_bp, return address from lcall]
+    "	mov	r3,a\n"
+    "	mov	a,@r3\n"
+    "	mov	r3,a\n"         // r3 = byteLength
     "	mov	r4,#0x00\n"     // byteIndex = 0
     "00113$:\n"
-    "	mov	a,_bp\n"        // readout "length" from stack [--stack-auto or reentrant].
-    "	add	a,#0xfd\n"
-    "	mov	r0,a\n"
-    "	clr	c\n"
     "	mov	a,r4\n"
-    "	subb	a,@r0\n"
-    "	jc	00155$\n"
-    "	ljmp	00108$\n"
+    "	clr	c\n"
+    "	subb a,r3\n"
+    "	jc	00155$\n"       // if (byteLength > byteIndex)
+    "	ljmp	00108$\n"   // else
     "00155$:\n"
     "	lcall	__gptrget\n"
     "	mov	r7,a\n"
