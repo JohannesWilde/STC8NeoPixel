@@ -3,6 +3,7 @@
 #include "prescaler.h"
 #include "static_assert.h"
 #include "stc8g.h"
+#include "unused.h"
 
 #include <limits.h>
 #include <stdbool.h>
@@ -48,6 +49,9 @@ void show(uint8_t const * data, uint8_t const length) /*__naked*/
     // I only counted clock cycles of __gptrget for --model-small.
     COMPILE_TIME_ASSERT(false);
 #endif
+
+    UNUSED(data);
+    UNUSED(length);
 
     // jb      _B_7,codeptr$        ; >0x80 code       ; 3
     // sjmp    .                                       ; 2
