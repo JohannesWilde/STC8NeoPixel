@@ -314,8 +314,8 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // r0 -
     // r1 -
     // r2 -
-    // r3 - byteLength
-    // r4 - byteIndex
+    // r3 -
+    // r4 - remainingBytes
     // r5 -
     // r6 - bitIndex
     // r7 -
@@ -327,32 +327,29 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	add	a,#0xfd\n"      // stack frame address - 3 [_bp, return address from lcall]
     "	mov	r0,a\n"
     "	mov	a,@r0\n"
-    "	mov	r3,a\n"         // r3 = byteLength
-    "	mov	r4,#0x00\n"     // byteIndex = 0
+    "	mov	r4,a\n"         // r4 = byteLength = "remainingBytes"
+    "   inc r4\n"             // Increment r4 so that djnz can decrement and then compare to 0 the right amount of times.
 
     // The following is the inner loop and must be timed precisely for the bits to be correct for the WS2812.
     "001$:\n"
-    "	mov	a,r4\n"         // byteIndex
-    "	clr	c\n"
-    "	subb a,r3\n"        // byteIndex - byteLength
-    "	jc	002$\n"         // if (byteLength > byteIndex)
-    "	ljmp	003$\n"     // else
+    "	djnz r4, 002$\n"    // if (0 != --remainingBytes)       2 [2/3]
+    "	ljmp	003$\n"     // else                             3 [3]
     "002$:\n"
     "	lcall	__gptrget\n"
     "	mov	r7,a\n"         // r7 = datum = data[byteIndex]
     "	inc dptr\n"         // ++byteIndex                      1 [1]
-    "	mov	r6,#0x08\n"     // bitIndex = 8
+    "	mov	r6,#0x08\n"     // bitIndex = 8                     2 [1]
     "004$:\n"
-    "	clr	c\n"
-    "	mov	a,#0x00\n"
-    "	subb	a,r6\n"
-    "	jc	005$\n"
-    "	ljmp	006$\n"
+    "	mov	a,#0x00\n"      //                                  2 [1]
+    "	clr	c\n"            //                                  1 [1]
+    "	subb a,r6\n"        //                                  1 [1]
+    "	jc	005$\n"         //                                  2 [1/3]
+    "	ljmp	006$\n"     //                                  3 [1/3]
     "005$:\n"
-    "	mov	a,r7\n"
-    "	rlc	a\n"
-    "	mov	b0,c\n"
-    "	setb	_P5_5\n"
+    "	mov	a,r7\n"         //                                  1 [1]
+    "	rlc	a\n"            //                                  1 [1]
+    "	mov	b0,c\n"         //                                  2 [1]
+    "	setb	_P5_5\n"    //                                  2 [1]
     "	jb	b0,007$\n"
     "	ljmp	008$\n"
     "007$:\n"
@@ -433,7 +430,6 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	dec	r6\n"
     "	ljmp	004$\n"
     "006$:\n"
-    "	inc	r4\n"
     "	ljmp	001$\n"
 
     // Here the loop is over, so no precise timing required anymore.
