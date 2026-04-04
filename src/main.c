@@ -182,13 +182,13 @@ void show(uint8_t const * data, uint8_t const length) /*__naked*/
     //     ar2 = 0x02
     //     ar1 = 0x01
     //     ar0 = 0x00
-    //     push	_bp                 // remember old stack base pointer
-    //     mov	_bp,sp              // set current stack base pointer
-    //     push	dpl                 // uint8_t const * data from [dpl, dph] to stack
-    //     push	dph
-    //     push	b                   // memory type to stack
+    //     push	_bp                 // remember old stack base pointer          2 [1]
+    //     mov	_bp,sp              // set current stack base pointer           3 [1]
+    //     push	dpl                 // uint8_t const * data from [dpl, dph] to stack        2 [1]
+    //     push	dph                 //                                          2 [1]
+    //     push	b                   // memory type to stack                     2 [1]
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:143: for (uint8_t index = 0; length > index; ++index)
-    //     mov	r4,#0x00            // r4 = 0    - "index"
+    //     mov	r4,#0x00            // r4 = 0    - "index"                      2 [1]
     // 00113$:
 
     // STC8G-en
@@ -211,89 +211,89 @@ void show(uint8_t const * data, uint8_t const length) /*__naked*/
     // https://www.8052mcu.com/51ret.php
     // RET is used to return from a subroutine previously called by LCALL or ACALL. Program execution continues at the address that is calculated by popping the topmost 2 bytes off the stack. The most-significant-byte is popped off the stack first, followed by the least-significant-byte.
 
-    //     mov	a,_bp               // stack frame base pointer to accumulator
-    //     add	a,#0xfd             // 0xfd = (int8_t)-3 ; second argument uint8_t const length is passed via stack [--stack-auto]; subtract 3 because [2 * return address, 1 * bp_].
-    //     mov	r0,a                // Store address of length in r0.
-    //     clr	c                   // Clear carry flag.
-    //     mov	a,r4                // acc = "index"
-    //     subb	a,@r0               // acc = "index" - "length"
-    //     jc	00155$              // if (length > index) -> inner for loop
-    //     ljmp	00108$              // else -> for loop end
+    //     mov	a,_bp               // stack frame base pointer to accumulator  2 [1]
+    //     add	a,#0xfd             // 0xfd = (int8_t)-3 ; second argument uint8_t const length is passed via stack [--stack-auto]; subtract 3 because [2 * return address, 1 * bp_].    2 [1]
+    //     mov	r0,a                // Store address of length in r0.           1 [1]
+    //     clr	c                   // Clear carry flag.                        1 [1]
+    //     mov	a,r4                // acc = "index"                            1 [1]
+    //     subb	a,@r0               // acc = "index" - "length"                 1 [1]
+    //     jc	00155$              // if (length > index) -> inner for loop    2 [1/3]
+    //     ljmp	00108$              // else -> for loop end                     3 [3]
     // 00155$:
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:145: uint8_t datum = data[index];
-    //     mov	r0,_bp              // r0 = stack frame base pointer
-    //     inc	r0                  // r0 += 1  [@dpl = "*data_l"]
-    //     mov	a,r4                // acc = "index"
-    //     add	a, @r0              // acc = "index" + "*data_l"
-    //     mov	r2,a                // r2 = "&data_l[index]"
-    //     mov	a,#0x00             // acc = 0
-    //     inc	r0                  // r0 += 1 [@dph = "*data_l"]
-    //     addc	a, @r0              // acc = 0 + dph + carry    [carry from "index" + "data_l"]
-    //     mov	r3,a                // r3 = "&data_h[index]"
-    //     inc	r0                  // r0 += 1 [@b - memory type]
-    //     mov	ar7,@r0             // r7 = b
-    //     mov	dpl,r2              // "incremented" dpl
-    //     mov	dph,r3              // "incremented" dph
-    //     mov	b,r7                // b = b
-    //     lcall	__gptrget       // "datum = data[index]"
-    //     mov	r7,a                // r7 = "datum"
+    //     mov	r0,_bp              // r0 = stack frame base pointer            2 [1]
+    //     inc	r0                  // r0 += 1  [@dpl = "*data_l"]              1 [1]
+    //     mov	a,r4                // acc = "index"                            1 [1]
+    //     add	a, @r0              // acc = "index" + "*data_l"                1 [1]
+    //     mov	r2,a                // r2 = "&data_l[index]"                    1 [1]
+    //     mov	a,#0x00             // acc = 0                                  2 [1]
+    //     inc	r0                  // r0 += 1 [@dph = "*data_l"]               1 [1]
+    //     addc	a, @r0              // acc = 0 + dph + carry    [carry from "index" + "data_l"]     1 [1]
+    //     mov	r3,a                // r3 = "&data_h[index]"                    1 [1]
+    //     inc	r0                  // r0 += 1 [@b - memory type]               1 [1]
+    //     mov	ar7,@r0             // r7 = b                                   2 [1]
+    //     mov	dpl,r2              // "incremented" dpl                        2 [1]
+    //     mov	dph,r3              // "incremented" dph                        2 [1]
+    //     mov	b,r7                // b = b                                    2 [1]
+    //     lcall	__gptrget       // "datum = data[index]"                    3 [3]
+    //     mov	r7,a                // r7 = "datum"                             1 [1]
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:146: for (uint8_t bitIndex = 8; 0 < bitIndex; --bitIndex)
-    //     mov	r6,#0x08            // bitIndex = 8
+    //     mov	r6,#0x08            // bitIndex = 8                             2 [1]
     // 00110$:
-    //     clr	c                   // clear carry
-    //     mov	a,#0x00             // acc = 0
-    //     subb	a,r6                // acc = 0 - "bitIndex"
-    //     jc	00156$              // if (0 < "bintIndex") -> inner for loop
-    //     ljmp	00114$              // else -> end for loop
+    //     clr	c                   // clear carry                              1 [1]
+    //     mov	a,#0x00             // acc = 0                                  2 [1]
+    //     subb	a,r6                // acc = 0 - "bitIndex"                     1 [1]
+    //     jc	00156$              // if (0 < "bintIndex") -> inner for loop   2 [1/3]
+    //     ljmp	00114$              // else -> end for loop                     3 [3]
     // 00156$:
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:149: bool const bitValue = datum & 0x80;
-    //     mov	a,r7                // acc = "datum"
-    //     rlc	a                   // rotate left through carry -> bit 0x80 shifted into carry [MSb]
-    //     mov	b0,c                // Move carry flag to b0 [BIT_BANK[0]]
+    //     mov	a,r7                // acc = "datum"                            1 [1]
+    //     rlc	a                   // rotate left through carry -> bit 0x80 shifted into carry [MSb]       1 [1]
+    //     mov	b0,c                // Move carry flag to b0 [BIT_BANK[0]]      2 [1]
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:151: NEO_PIXEL_PIN = 1;
     // ;	assignBit
-    //     setb	_P5_5               // output pin HIGH
+    //     setb	_P5_5               // output pin HIGH                          2 [1]
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:152: if (bitValue)
-    //     jb	b0,00157$           // bit set -> if ()
-    //     ljmp	00102$              // bit not set -> else ()
+    //     jb	b0,00157$           // bit set -> if ()                         3 [1/3]
+    //     ljmp	00102$              // bit not set -> else ()                   3 [3]
     // 00157$:                      // if ()
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:154: NOP(); // 19.2
-    //     NOP
-    //     ljmp	00103$
+    //     NOP                      //                                          1 [1]
+    //     ljmp	00103$              //                                          3 [3]
     // 00102$:                      // else ()
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:158: NOP(); // 9.6
-    //     NOP
+    //     NOP                      //                                          1 [1]
     // 00103$:                      // end of if-else
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:160: NEO_PIXEL_PIN = 0;
     // ;	assignBit
-    //     clr	_P5_5               // output pin LOW
+    //     clr	_P5_5               // output pin LOW                           2 [1]
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:161: if (bitValue)
-    //     jb	b0,00158$           // bit set -> if ()
-    //     ljmp	00105$              // bit not set -> else ()
+    //     jb	b0,00158$           // bit set -> if ()                         3 [1/3]
+    //     ljmp	00105$              // bit not set -> else ()                   3 [3]
     // 00158$:                      // if ()
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:163: NOP(); // 10.8
-    //     NOP
-    //     ljmp	00106$
+    //     NOP                      //                                          1 [1]
+    //     ljmp	00106$              //                                          3 [3]
     // 00105$:                      // else()
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:167: NOP(); // 20.4
-    //     NOP
+    //     NOP                      //                                          1 [1]
     // 00106$:
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:170: datum <<= 1;
-    //     mov	a,r7                // acc = datum
-    //     add	a,acc               // acc = acc + acc = 2 * acc = acc << 1     - without carry
-    //     mov	r7,a                // r7 = acc
+    //     mov	a,r7                // acc = datum                              1 [1]
+    //     add	a,acc               // acc = acc + acc = 2 * acc = acc << 1     - without carry    2 [1]
+    //     mov	r7,a                // r7 = acc                                 1 [1]
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:146: for (uint8_t bitIndex = 8; 0 < bitIndex; --bitIndex)
-    //     dec	r6                  // "--bitIndex"
-    //     ljmp	00110$
+    //     dec	r6                  // "--bitIndex"                             1 [1]
+    //     ljmp	00110$              //                                          3 [3]
     // 00114$:
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:143: for (uint8_t index = 0; length > index; ++index)
-    //     inc	r4                  // "++index"
-    //     ljmp	00113$
+    //     inc	r4                  // "++index"                                1 [1]
+    //     ljmp	00113$              //                                          3 [3]
     // 00115$:
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:320: }
-    //     mov	sp,_bp
-    //     pop	_bp
-    //     ret
+    //     mov	sp,_bp              //                                          3 [1]
+    //     pop	_bp                 //                                          2 [1]
+    //     ret                      //                                          1 [3]
 
 
 
