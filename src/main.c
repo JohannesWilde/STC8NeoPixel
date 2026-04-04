@@ -186,12 +186,12 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	nop	\n"             //                                                                      2
     "	nop	\n"             //                                                                      3
     "	clr	_P5_5\n"        //                                  2 [1]                               _1
-    "	nop	\n"             //                                                                      _2
-    "	nop	\n"             //                                                                      _3
-    "	nop	\n"             //                                                                      _4
-    "	nop	\n"             //                                                                      _5
-    "	nop	\n"             //                                                                      _6
-    "	nop	\n"             //                                                                      _7
+    // "	nop	\n"             //                                                                      _2
+    // "	nop	\n"             //                                                                      _3
+    // "	nop	\n"             //                                                                      _4
+    // "	nop	\n"             //                                                                      _5
+    // "	nop	\n"             //                                                                      _6
+    // "	nop	\n"             //                                                                      _7
     "009$:\n"
 #elif (4000000 == F_CPU)
     // @4 MHz
@@ -220,8 +220,8 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // "	nop	\n"             //                                                                      2
 
     "	clr	_P5_5\n"        //                                  2 [1]                               _1
-    "	nop	\n"             //                                                                      _2
-    "	nop	\n"             //                                                                      _3
+    // "	nop	\n"             //                                                                      _2
+    // "	nop	\n"             //                                                                      _3
     "009$:\n"
 #else
     COMPILE_TIME_ASSERT(false); // frequency not supported
