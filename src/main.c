@@ -330,18 +330,15 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	mov	r3,a\n"         // r3 = byteLength
     "	mov	r4,#0x00\n"     // byteIndex = 0
     "001$:\n"
-    "	mov	a,r4\n"
+    "	mov	a,r4\n"         // byteIndex
     "	clr	c\n"
-    "	subb a,r3\n"
-    "	jc	002$\n"       // if (byteLength > byteIndex)
-    "	ljmp	003$\n"   // else
+    "	subb a,r3\n"        // byteIndex - byteLength
+    "	jc	002$\n"         // if (byteLength > byteIndex)
+    "	ljmp	003$\n"     // else
     "002$:\n"
     "	lcall	__gptrget\n"
-    "	mov	r7,a\n"
-    "	inc dpl\n"      // ++byteIndex
-    "	mov a,dph\n"    //
-    "	addc a,#0\n"
-    "	mov dph,a\n"
+    "	mov	r7,a\n"         // r7 = datum = data[byteIndex]
+    "	inc dptr\n"         // ++byteIndex                      1 [1]
     "	mov	r6,#0x08\n" // bitIndex = 8
     "004$:\n"
     "	clr	c\n"
