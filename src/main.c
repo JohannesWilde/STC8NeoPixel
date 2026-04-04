@@ -318,7 +318,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // r4 - remainingBytes
     // r5 -
     // r6 - remainingBits
-    // r7 -
+    // r7 - datum
 
     __asm__ (
     "	push	_bp\n"
@@ -347,8 +347,8 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	rlc	a\n"            //                                  1 [1]
     "	mov	b0,c\n"         //                                  2 [1]
     "	setb	_P5_5\n"    //                                  2 [1]
-    "	jb	b0,007$\n"
-    "	ljmp	008$\n"
+    "	jb	b0,007$\n"      //                                  3 [1/3]
+    "	ljmp	008$\n"     //                                  3 [3]
     "007$:\n"
     "	NOP	\n"
     "	NOP	\n"
@@ -369,7 +369,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	NOP	\n"
     "	NOP	\n"
     "	NOP	\n"
-    "	ljmp	009$\n"
+    "	ljmp	009$\n"     //                                  3 [3]
     "008$:\n"
     "	NOP	\n"
     "	NOP	\n"
@@ -383,9 +383,9 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	NOP	\n"
     "009$:\n"
     ";	assignBit\n"
-    "	clr	_P5_5\n"
-    "	jb	b0,010$\n"
-    "	ljmp	011$\n"
+    "	clr	_P5_5\n"        //                                  2 [1]
+    "	jb	b0,010$\n"      //                                  3 [1/3]
+    "	ljmp	011$\n"     //                                  3 [3]
     "010$:\n"
     "	NOP	\n"
     "	NOP	\n"
@@ -398,7 +398,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	NOP	\n"
     "	NOP	\n"
     "	NOP	\n"
-    "	ljmp 012$\n"
+    "	ljmp 012$\n"        //                                  3 [3]
     "011$:\n"
     "	NOP	\n"
     "	NOP	\n"
@@ -421,12 +421,12 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	NOP	\n"
     "	NOP	\n"
     "012$:\n"
-    "	mov	a,r7\n"
-    "	add	a,acc\n"
-    "	mov	r7,a\n"
-    "	ljmp	004$\n"
+    "	mov	a,r7\n"         //                                  1 [1]
+    "	add	a,acc\n"        //                                  2 [1]
+    "	mov	r7,a\n"         //                                  1 [1]
+    "	ljmp	004$\n"     //                                  3 [3]
     "006$:\n"
-    "	ljmp	001$\n"
+    "	ljmp	001$\n"     //                                  3 [3]
 
     // Here the loop is over, so no precise timing required anymore.
     "003$:\n"
