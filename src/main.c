@@ -144,9 +144,9 @@ void show(uint8_t const * data, uint8_t const length) __naked
 
 
 
-    // for (uint8_t index = 0; length > index; ++index)
+    // for (uint8_t byteIndex = 0; length > byteIndex; ++byteIndex)
     // {
-    //     uint8_t datum = data[index];
+    //     uint8_t datum = data[byteIndex];
     //     for (uint8_t bitIndex = 8; 0 < bitIndex; --bitIndex)
     //     {
     //         // MSb sent first.
@@ -191,8 +191,8 @@ void show(uint8_t const * data, uint8_t const length) __naked
     //     push	dpl                 // uint8_t const * data from [dpl, dph] to stack        2 [1]
     //     push	dph                 //                                          2 [1]
     //     push	b                   // memory type to stack                     2 [1]
-    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:143: for (uint8_t index = 0; length > index; ++index)
-    //     mov	r4,#0x00            // r4 = 0    - "index"                      2 [1]
+    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:143: for (uint8_t byteIndex = 0; length > byteIndex; ++byteIndex)
+    //     mov	r4,#0x00            // r4 = 0    - "byteIndex"                      2 [1]
     // 00113$:
 
     // STC8G-en
@@ -219,27 +219,27 @@ void show(uint8_t const * data, uint8_t const length) __naked
     //     add	a,#0xfd             // 0xfd = (int8_t)-3 ; second argument uint8_t const length is passed via stack [--stack-auto]; subtract 3 because [2 * return address, 1 * bp_].    2 [1]
     //     mov	r0,a                // Store address of length in r0.           1 [1]
     //     clr	c                   // Clear carry flag.                        1 [1]
-    //     mov	a,r4                // acc = "index"                            1 [1]
-    //     subb	a,@r0               // acc = "index" - "length"                 1 [1]
-    //     jc	00155$              // if (length > index) -> inner for loop    2 [1/3]
+    //     mov	a,r4                // acc = "byteIndex"                            1 [1]
+    //     subb	a,@r0               // acc = "byteIndex" - "length"                 1 [1]
+    //     jc	00155$              // if (length > byteIndex) -> inner for loop    2 [1/3]
     //     ljmp	00108$              // else -> for loop end                     3 [3]
     // 00155$:
-    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:145: uint8_t datum = data[index];
+    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:145: uint8_t datum = data[byteIndex];
     //     mov	r0,_bp              // r0 = stack frame base pointer            2 [1]
     //     inc	r0                  // r0 += 1  [@dpl = "*data_l"]              1 [1]
-    //     mov	a,r4                // acc = "index"                            1 [1]
-    //     add	a, @r0              // acc = "index" + "*data_l"                1 [1]
-    //     mov	r2,a                // r2 = "&data_l[index]"                    1 [1]
+    //     mov	a,r4                // acc = "byteIndex"                            1 [1]
+    //     add	a, @r0              // acc = "byteIndex" + "*data_l"                1 [1]
+    //     mov	r2,a                // r2 = "&data_l[byteIndex]"                    1 [1]
     //     mov	a,#0x00             // acc = 0                                  2 [1]
     //     inc	r0                  // r0 += 1 [@dph = "*data_l"]               1 [1]
-    //     addc	a, @r0              // acc = 0 + dph + carry    [carry from "index" + "data_l"]     1 [1]
-    //     mov	r3,a                // r3 = "&data_h[index]"                    1 [1]
+    //     addc	a, @r0              // acc = 0 + dph + carry    [carry from "byteIndex" + "data_l"]     1 [1]
+    //     mov	r3,a                // r3 = "&data_h[byteIndex]"                    1 [1]
     //     inc	r0                  // r0 += 1 [@b - memory type]               1 [1]
     //     mov	ar7,@r0             // r7 = b                                   2 [1]
     //     mov	dpl,r2              // "incremented" dpl                        2 [1]
     //     mov	dph,r3              // "incremented" dph                        2 [1]
     //     mov	b,r7                // b = b                                    2 [1]
-    //     lcall	__gptrget       // "datum = data[index]"                    3 [3]
+    //     lcall	__gptrget       // "datum = data[byteIndex]"                    3 [3]
     //     mov	r7,a                // r7 = "datum"                             1 [1]
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:146: for (uint8_t bitIndex = 8; 0 < bitIndex; --bitIndex)
     //     mov	r6,#0x08            // bitIndex = 8                             2 [1]
@@ -290,8 +290,8 @@ void show(uint8_t const * data, uint8_t const length) __naked
     //     dec	r6                  // "--bitIndex"                             1 [1]
     //     ljmp	00110$              //                                          3 [3]
     // 00114$:
-    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:143: for (uint8_t index = 0; length > index; ++index)
-    //     inc	r4                  // "++index"                                1 [1]
+    // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:143: for (uint8_t byteIndex = 0; length > byteIndex; ++byteIndex)
+    //     inc	r4                  // "++byteIndex"                                1 [1]
     //     ljmp	00113$              //                                          3 [3]
     // 00115$:
     // ;	C:\Users\User\Documents\STC\STC8NeoPixel\src\main.c:320: }
@@ -309,12 +309,21 @@ void show(uint8_t const * data, uint8_t const length) __naked
     // 0:  high  9.6 clk, low 20.4 clk
     // 1:  high 19.2 clk, low 10.8 clk
 
+    // b - memory type
+    // [dpl, dph] - *data
+    // r0 -
+    // r1 -
+    // r2 -
+    // r3 -
+    // r4 - byteIndex
+    // r5 -
+    // r6 - bitIndex
+    // r7 -
 
     __asm__ (
     "	push	_bp\n"
     "	mov	_bp,sp\n"
-    "; Backup *data and memory type on stack.\n"
-    "	mov	r4,#0x00\n"
+    "	mov	r4,#0x00\n"     // byteIndex = 0
     "00113$:\n"
     "	mov	a,_bp\n"
     "	add	a,#0xfd\n"
@@ -327,7 +336,7 @@ void show(uint8_t const * data, uint8_t const length) __naked
     "00155$:\n"
     "	lcall	__gptrget\n"
     "	mov	r7,a\n"
-    "	inc dpl\n"      // ++index
+    "	inc dpl\n"      // ++byteIndex
     "	mov a,dph\n"    //
     "	addc a,#0\n"
     "	mov dph,a\n"
