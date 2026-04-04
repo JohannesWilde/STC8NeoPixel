@@ -42,7 +42,7 @@ static uint8_t neoPixelData[4 * /*bytes per pixel*/4];
 
 
 
-void show(uint8_t const * data, uint8_t const length) __naked
+void show(uint8_t const * data, uint8_t const length) __reentrant __naked
 {
 
 #if defined(DSDCC_MODEL_HUGE) || defined(DSDCC_MODEL_MEDIUM) || defined(__SDCC_ds390)
@@ -325,7 +325,7 @@ void show(uint8_t const * data, uint8_t const length) __naked
     "	mov	_bp,sp\n"
     "	mov	r4,#0x00\n"     // byteIndex = 0
     "00113$:\n"
-    "	mov	a,_bp\n"
+    "	mov	a,_bp\n"        // readout "length" from stack [--stack-auto or reentrant].
     "	add	a,#0xfd\n"
     "	mov	r0,a\n"
     "	clr	c\n"
