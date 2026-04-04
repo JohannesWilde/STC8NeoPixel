@@ -21,7 +21,7 @@
 
 #define F_WAKEUP_TIMER 36075  // Hz
 #define F_IRC 24000000ull  // Hz
-#define CLOCK_DIVISOR 100
+#define CLOCK_DIVISOR 1
 #define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
 #define F_SYS_TICK 20  // Hz
 
@@ -159,7 +159,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // r2 -
     // r3 -
     // r4 - remainingBytes
-    // r5 -
+    // r5 - counter
     // r6 - remainingBits
     // r7 - datum
 
@@ -172,8 +172,6 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	mov	a,@r0\n"
     "	mov	r4,a\n"         // r4 = byteLength = "remainingBytes"
     "   inc r4\n"             // Increment r4 so that djnz can decrement and then compare to 0 the right amount of times.
-
-    // The following is the inner loop and must be timed precisely for the bits to be correct for the WS2812.
     "001$:\n"
     "	djnz r4, 002$\n"    // if (0 != --remainingBytes)       2 [2/3]
     "	ljmp	003$\n"     // else                             3 [3]
@@ -187,94 +185,53 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	ljmp	006$\n"     //                                  3 [3]
     "005$:\n"
     "	mov	a,r7\n"         //                                  1 [1]
-    "	rlc	a\n"            //                                  1 [1]
-    "	setb	_P5_5\n"    //                                  2 [1]
-    "	jc	007$\n"         //                                  2 [1/3]
-    "	ljmp	008$\n"     //                                  3 [3]
+    "	rlc	a\n"            // datum & 0x80 in carry            1 [1]
+    "	mov	r7,a\n"         // datm << 1                        1 [1]
+
+    // The following is the inner loop and must be timed precisely for each bit to be correct for the WS2812.
+    // Please note, that as long as the inter-bit times are smaller than the reset time, the will be cascaded correctly.
+    // So not timing requirements in between byte - apart from being less than 50 us apart.
+                            //                                                              (1)     (0)
+    "	setb	_P5_5\n"    //                                  2 [1]                       1       1
+    "	jc	007$\n"         //                                  2 [1/3]                     4       2
+    "	ljmp	008$\n"     //                                  3 [3]                               5
+
+    // bit 1 transmission
     "007$:\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	ljmp	009$\n"     //                                  3 [3]
+    "   mov r5,#5\n"        // 5 = 4 [jump] + 1 [not jump]      2 [1]                       5
+    "013$:\n"
+    "   djnz r5,013$\n"     // Decrement register and jump if not Zero     2 [2/3]          19
+    "	clr	_P5_5\n"        //                                  2 [1]                       _1
+    "   mov r5,#2\n"        // 1 = 1 [jump] + 1 [not jump]      2 [1]                       _2
+    "014$:\n"
+    "   djnz r5,014$\n"     // Decrement register and jump if not Zero     2 [2/3]          _7
+    "	nop	\n"             //                                                              _8
+    "	ljmp	009$\n"     //                                  3 [3]                       _11
+
+    // bit 0 transmission
     "008$:\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
+    "	nop	\n"             //                                                                      6
+    "	nop	\n"             //                                                                      7
+    "	nop	\n"             //                                                                      8
+    "	nop	\n"             //                                                                      9
+    "	nop	\n"             //                                                                      10
+    "	clr	_P5_5\n"        //                                  2 [1]                               _1
+    "   mov r5,#6\n"        // 6 = 5 [jump] + 1 [not jump]      2 [1]                               _2
+    "015$:\n"
+    "   djnz r5,015$\n"     // Decrement register and jump if not Zero     2 [2/3]                  _19
+    "	NOP	\n"             //                                                                      _20
     "009$:\n"
-    ";	assignBit\n"
-    "	clr	_P5_5\n"        //                                  2 [1]
-    "	jc	010$\n"         //                                  2 [1/3]
-    "	ljmp	011$\n"     //                                  3 [3]
-    "010$:\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	ljmp 012$\n"        //                                  3 [3]
-    "011$:\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "	NOP	\n"
-    "012$:\n"
-    "	mov	r7,a\n"         //                                  1 [1]
+
+    // Here the single bit is over, so no precise timing required anymore.
     "	ljmp	004$\n"     //                                  3 [3]
     "006$:\n"
     "	ljmp	001$\n"     //                                  3 [3]
 
-    // Here the loop is over, so no precise timing required anymore.
     "003$:\n"
     "	mov	sp,_bp\n"
     "	pop	_bp\n"
     "	ret\n"
     );
-
 }
 
 
@@ -314,9 +271,9 @@ void main()
     interrupts(); // enable interrupts
 
     neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0xff;
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0xaa;
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0xaa;
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0xaa;
+    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0x00;
+    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0x00;
+    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0x00;
     neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0x00;
     neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0xff;
     neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0x00;
@@ -329,7 +286,7 @@ void main()
     neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0x00;
     neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0x00;
     neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0xff;
-    show(neoPixelData, /*bytes*/ 2);
+    show(neoPixelData, /*bytes*/ 4 * 4);
 
     while (true)
     {
