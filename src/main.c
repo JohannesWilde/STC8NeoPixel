@@ -73,7 +73,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	mov	_bp,sp\n"
 
     "	push _PSW\n" // indirectly modified with carry-flag
-    "	push a\n"
+    "	push acc\n"
     // "	push b\n" // unmodified in this function
     "	push dpl\n"
     "	push dph\n"
@@ -247,7 +247,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	pop dph\n"
     "	pop dpl\n"
     // "	push b\n" // unmodified in this function
-    "	pop a\n"
+    "	pop acc\n"
     "	pop _PSW\n" // indirectly modified with carry-flag
 
     "	mov	sp,_bp\n"
