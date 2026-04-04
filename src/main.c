@@ -21,7 +21,7 @@
 
 #define F_WAKEUP_TIMER 36075  // Hz
 #define F_IRC 24000000ull  // Hz
-#define CLOCK_DIVISOR 1
+#define CLOCK_DIVISOR 3
 #define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
 #define F_SYS_TICK 20  // Hz
 
