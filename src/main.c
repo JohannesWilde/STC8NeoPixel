@@ -212,7 +212,13 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // bit "0" transmission
     "008$:\n"
     "	setb	_P5_5\n"    //                                  2 [1]                               1
+
+    // Even though as per the datasheet 2 clk = 500 ns should be in spec [400 ns +- 150 ns] my NeoPixels
+    // seemed to always interpret this still as a "1"-bit.
+    // Commenting out this line and thus reducing the HIGH-duration to 250 ns is just in spec - and did
+    // work. But I would not trust it to always work reliably.
     // "	nop	\n"             //                                                                      2
+
     "	clr	_P5_5\n"        //                                  2 [1]                               _1
     "	nop	\n"             //                                                                      _2
     "	nop	\n"             //                                                                      _3
