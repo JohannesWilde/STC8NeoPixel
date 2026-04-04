@@ -21,7 +21,7 @@
 
 #define F_WAKEUP_TIMER 36075  // Hz
 #define F_IRC 24000000ull  // Hz
-#define CLOCK_DIVISOR 1
+#define CLOCK_DIVISOR 100
 #define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
 #define F_SYS_TICK 20  // Hz
 
@@ -359,8 +359,35 @@ void show(uint8_t const * data, uint8_t const length) __naked
     "	ljmp	00102$\n"
     "00157$:\n"
     "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
     "	ljmp	00103$\n"
     "00102$:\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
     "	NOP	\n"
     "00103$:\n"
     ";	assignBit\n"
@@ -369,8 +396,37 @@ void show(uint8_t const * data, uint8_t const length) __naked
     "	ljmp	00105$\n"
     "00158$:\n"
     "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
     "	ljmp	00106$\n"
     "00105$:\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
+    "	NOP	\n"
     "	NOP	\n"
     "00106$:\n"
     "	mov	a,r7\n"
@@ -425,23 +481,23 @@ void main()
 
     interrupts(); // enable interrupts
 
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED] = 0xff;
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN] = 0x00;
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE] = 0x00;
-    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE] = 0x00;
-    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED] = 0x00;
-    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN] = 0xff;
-    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE] = 0x00;
-    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE] = 0x00;
-    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED] = 0x00;
-    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN] = 0x00;
-    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE] = 0xff;
-    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE] = 0x00;
-    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED] = 0x00;
-    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN] = 0x00;
-    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE] = 0x00;
-    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE] = 0xff;
-    show(neoPixelData, /*bytes*/ 4);
+    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0xaa;
+    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0xaa;
+    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0xaa;
+    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0xaa;
+    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0x00;
+    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0xff;
+    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0x00;
+    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0x00;
+    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0x00;
+    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0x00;
+    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0xff;
+    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0x00;
+    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0x00;
+    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0x00;
+    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0x00;
+    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0xff;
+    show(neoPixelData, /*bytes*/ 1);
 
     while (true)
     {
