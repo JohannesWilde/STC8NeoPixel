@@ -6,9 +6,11 @@
 #include "unused.h"
 
 
-// Must match pin used in asm below [_P5_5].
-COMPILE_TIME_ASSERT(5 == NEO_PIXEL_PORT_NUMBER);
-COMPILE_TIME_ASSERT(5 == NEO_PIXEL_PIN_NUMBER);
+#define MAKE_ASM_PIN_NAME_(port, pin) "_P" #port "_" #pin
+#define MAKE_ASM_PIN_NAME(port, pin) MAKE_ASM_PIN_NAME_(port, pin)
+
+#define NEO_PIXEL_ASM_PIN_STRING MAKE_ASM_PIN_NAME(NEO_PIXEL_PORT_NUMBER, NEO_PIXEL_PIN_NUMBER)
+
 
 void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) __reentrant __naked
 {
@@ -89,7 +91,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     "    add a, r7\n"        //                                  1 [1]
     "    mov a, b\n"         //                                  2 [1]
     "    addc a,#0\n"        //                                  2 [1]
-    "    mov    r0,a\n"         // save scaled value to r0          1 [1]
+    "    mov    r0,a\n"      // save scaled value to r0          1 [1]
     "    pop b\n"            // restore memory type from stack   2 [1]
 
     "004$:\n"
@@ -109,7 +111,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     // 1:  high 19.2 clk, low 10.8 clk
     // 0:  high  9.6 clk, low 20.4 clk
 
-    "    setb    _P5_5\n"    //                                  2 [1]                       1       1
+    "    setb    " NEO_PIXEL_ASM_PIN_STRING "\n"    //                                  2 [1]                       1       1
     "    jc    007$\n"       //                                  2 [1/3]                     4       2
     "    ljmp    008$\n"     //                                  3 [3]                               5
 
@@ -118,7 +120,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     "    mov r5,#5\n"        // 5 = 4 [jump] + 1 [not jump]      2 [1]                       5
     "013$:\n"
     "    djnz r5,013$\n"     // Decrement register and jump if not Zero     2 [2/3]          19
-    "    clr    _P5_5\n"     //                                  2 [1]                       _1
+    "    clr    " NEO_PIXEL_ASM_PIN_STRING "\n"     //                                  2 [1]                       _1
     // "   mov r5,#2\n"      // 1 = 1 [jump] + 1 [not jump]      2 [1]                       _2
     // "014$:\n"
     // "    djnz r5,014$\n"  // Decrement register and jump if not Zero     2 [2/3]          _7
@@ -132,7 +134,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     "    nop    \n"          //                                                                      8
     "    nop    \n"          //                                                                      9
     "    nop    \n"          //                                                                      10
-    "    clr    _P5_5\n"     //                                  2 [1]                               _1
+    "    clr    " NEO_PIXEL_ASM_PIN_STRING "\n"     //                                  2 [1]                               _1
     "    mov r5,#3\n"        // 6 - 3 = 5 - 3 [jump] + 1 [not jump]      2 [1]                       _2
     "015$:\n"
     "    djnz r5,015$\n"     // Decrement register and jump if not Zero     2 [2/3]                  _19
@@ -142,7 +144,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     // 1:  high 12.8 clk, low  7.2 clk
     // 0:  high  6.4 clk, low 13.6 clk
 
-    "    setb    _P5_5\n"    //                                  2 [1]                       1       1
+    "    setb    " NEO_PIXEL_ASM_PIN_STRING "\n"    //                                  2 [1]                       1       1
     "    jc    007$\n"       //                                  2 [1/3]                     4       2
     "    ljmp    008$\n"     //                                  3 [3]                               5
 
@@ -151,7 +153,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     "    mov r5,#3\n"        // 3 = 2 [jump] + 1 [not jump]      2 [1]                       5
     "013$:\n"
     "    djnz r5,013$\n"     // Decrement register and jump if not Zero     2 [2/3]          13
-    "    clr    _P5_5\n"     //                                  2 [1]                       _1
+    "    clr    " NEO_PIXEL_ASM_PIN_STRING "\n"     //                                  2 [1]                       _1
     // "    nop    \n"       //                                                              _2
     // "    nop    \n"       //                                                              _3
     // "    nop    \n"       //                                                              _4
@@ -160,7 +162,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     // bit "0" transmission
     "008$:\n"
     "    nop    \n"          //                                                                      6
-    "    clr    _P5_5\n"     //                                  2 [1]                               _1
+    "    clr    " NEO_PIXEL_ASM_PIN_STRING "\n"     //                                  2 [1]                               _1
     "    mov r5,#1\n"        // 4 - 3 = 3 - 3 [jump] + 1 [not jump]      2 [1]                       _2
     "015$:\n"
     "    djnz r5,015$\n"     // Decrement register and jump if not Zero     2 [2/3]                  _13
@@ -175,21 +177,21 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
 
     // bit "1" transmission
     "007$:\n"
-    "    setb    _P5_5\n"    //                                  2 [1]                       1
+    "    setb    " NEO_PIXEL_ASM_PIN_STRING "\n"    //                                  2 [1]                       1
     "    nop    \n"          //                                                              2
     "    nop    \n"          //                                                              3
     "    nop    \n"          //                                                              4
     "    nop    \n"          //                                                              5
     "    nop    \n"          //                                                              6
-    "    clr    _P5_5\n"     //                                  2 [1]                       _1
+    "    clr    " NEO_PIXEL_ASM_PIN_STRING "\n"     //                                  2 [1]                       _1
     "    ljmp    004$\n"     //                                  3 [3]                       _4
 
     // bit "0" transmission
     "008$:\n"
-    "    setb    _P5_5\n"    //                                  2 [1]                               1
+    "    setb    " NEO_PIXEL_ASM_PIN_STRING "\n"    //                                  2 [1]                               1
     "    nop    \n"          //                                                                      2
     "    nop    \n"          //                                                                      3
-    "    clr    _P5_5\n"     //                                  2 [1]                               _1
+    "    clr    " NEO_PIXEL_ASM_PIN_STRING "\n"     //                                  2 [1]                               _1
     // "    nop    \n"       //                                                                      _2
     // "    nop    \n"       //                                                                      _3
     // "    nop    \n"       //                                                                      _4
@@ -206,15 +208,15 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
 
     // bit "1" transmission
     "007$:\n"
-    "    setb    _P5_5\n"    //                                  2 [1]                       1
+    "    setb    " NEO_PIXEL_ASM_PIN_STRING "\n"    //                                  2 [1]                       1
     "    nop    \n"          //                                                              2
     "    nop    \n"          //                                                              3
-    "    clr    _P5_5\n"     //                                  2 [1]                       _1
+    "    clr    " NEO_PIXEL_ASM_PIN_STRING "\n"     //                                  2 [1]                       _1
     "    ljmp    004$\n"     //                                  3 [3]                       _2 + 2
 
     // bit "0" transmission
     "008$:\n"
-    "    setb    _P5_5\n"    //                                  2 [1]                               1
+    "    setb    " NEO_PIXEL_ASM_PIN_STRING "\n"    //                                  2 [1]                               1
 
     // Even though as per the datasheet 2 clk = 500 ns should be in spec [400 ns +- 150 ns] my NeoPixels
     // seemed to always interpret this still as a "1"-bit.
@@ -222,7 +224,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     // work. But I would not trust it to always work reliably.
     // "    nop    \n"       //                                                                      2
 
-    "    clr    _P5_5\n"     //                                  2 [1]                               _1
+    "    clr    " NEO_PIXEL_ASM_PIN_STRING "\n"     //                                  2 [1]                               _1
     // "    nop    \n"       //                                                                      _2
     // "    nop    \n"       //                                                                      _3
 #else
