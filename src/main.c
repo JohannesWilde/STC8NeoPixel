@@ -108,17 +108,17 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     "	inc dptr\n"         // ++byteIndex                      1 [1]
     "	mov	r6,#0x09\n"     // remainingBits = 8 + 1            2 [1]
 
-    // apply "brightness"
+    // Apply "brightness" [r7]  to "datum" [r0 and still in a].
     "   push b\n"           // backup memory type to stack      2 [1]
-    "   mov b, r7\n"        //                                  2 [1]
+    "   mov b, r7\n"        // "brightness" to b                2 [1]
     "   mul ab\n"           // b - high byte, a - low byte      1 [2]
     "   clr c\n"            //                                  1 [1]
     "   add a, r0\n"        // [datum + 1] * [brightness + 1] = [datum * brightness + datum + brightness] + 1       1 [1]
     "   add a, r7\n"        //                                  1 [1]
     "   mov a, b\n"         //                                  2 [1]
     "   addc a,#0\n"        //                                  2 [1]
-    "   pop b\n"            //                                  2 [1]
-    "	mov	r0,a\n"         // restore memory type from stack   1 [1]
+    "	mov	r0,a\n"         // save scaled value to r0          1 [1]
+    "   pop b\n"            // restore memory type from stack   2 [1]
 
     "004$:\n"
     "	djnz r6, 005$\n"    // if (0 != --remainingBits)        2 [2/3]
