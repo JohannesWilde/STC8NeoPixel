@@ -110,7 +110,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     // 0:  high  9.6 clk, low 20.4 clk
 
     "    setb    _P5_5\n"    //                                  2 [1]                       1       1
-    "    jc    007$\n"         //                                  2 [1/3]                     4       2
+    "    jc    007$\n"       //                                  2 [1/3]                     4       2
     "    ljmp    008$\n"     //                                  3 [3]                               5
 
     // bit "1" transmission
@@ -118,32 +118,32 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     "    mov r5,#5\n"        // 5 = 4 [jump] + 1 [not jump]      2 [1]                       5
     "013$:\n"
     "    djnz r5,013$\n"     // Decrement register and jump if not Zero     2 [2/3]          19
-    "    clr    _P5_5\n"        //                                  2 [1]                       _1
-    // "   mov r5,#2\n"        // 1 = 1 [jump] + 1 [not jump]      2 [1]                    _2
+    "    clr    _P5_5\n"     //                                  2 [1]                       _1
+    // "   mov r5,#2\n"      // 1 = 1 [jump] + 1 [not jump]      2 [1]                       _2
     // "014$:\n"
-    // "    djnz r5,014$\n"     // Decrement register and jump if not Zero     2 [2/3]       _7
-    // "    nop    \n"             //                                                          _8
+    // "    djnz r5,014$\n"  // Decrement register and jump if not Zero     2 [2/3]          _7
+    // "    nop    \n"       //                                                              _8
     "    ljmp    004$\n"     //                                  3 [3]                       _11
 
     // bit "0" transmission
     "008$:\n"
-    "    nop    \n"             //                                                                      6
-    "    nop    \n"             //                                                                      7
-    "    nop    \n"             //                                                                      8
-    "    nop    \n"             //                                                                      9
-    "    nop    \n"             //                                                                      10
-    "    clr    _P5_5\n"        //                                  2 [1]                               _1
+    "    nop    \n"          //                                                                      6
+    "    nop    \n"          //                                                                      7
+    "    nop    \n"          //                                                                      8
+    "    nop    \n"          //                                                                      9
+    "    nop    \n"          //                                                                      10
+    "    clr    _P5_5\n"     //                                  2 [1]                               _1
     "    mov r5,#3\n"        // 6 - 3 = 5 - 3 [jump] + 1 [not jump]      2 [1]                       _2
     "015$:\n"
     "    djnz r5,015$\n"     // Decrement register and jump if not Zero     2 [2/3]                  _19
-    "    nop    \n"             //                                                                      _20
+    "    nop    \n"          //                                                                      _20
 #elif (16000000 == F_CPU)
     // @16 MHz
     // 1:  high 12.8 clk, low  7.2 clk
     // 0:  high  6.4 clk, low 13.6 clk
 
     "    setb    _P5_5\n"    //                                  2 [1]                       1       1
-    "    jc    007$\n"         //                                  2 [1/3]                     4       2
+    "    jc    007$\n"       //                                  2 [1/3]                     4       2
     "    ljmp    008$\n"     //                                  3 [3]                               5
 
     // bit "1" transmission
@@ -151,65 +151,65 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     "    mov r5,#3\n"        // 3 = 2 [jump] + 1 [not jump]      2 [1]                       5
     "013$:\n"
     "    djnz r5,013$\n"     // Decrement register and jump if not Zero     2 [2/3]          13
-    "    clr    _P5_5\n"        //                                  2 [1]                       _1
-    // "    nop    \n"             //                                                          _2
-    // "    nop    \n"             //                                                          _3
-    // "    nop    \n"             //                                                          _4
+    "    clr    _P5_5\n"     //                                  2 [1]                       _1
+    // "    nop    \n"       //                                                              _2
+    // "    nop    \n"       //                                                              _3
+    // "    nop    \n"       //                                                              _4
     "    ljmp    004$\n"     //                                  3 [3]                       _7
 
     // bit "0" transmission
     "008$:\n"
-    "    nop    \n"             //                                                                      6
-    "    clr    _P5_5\n"        //                                  2 [1]                               _1
+    "    nop    \n"          //                                                                      6
+    "    clr    _P5_5\n"     //                                  2 [1]                               _1
     "    mov r5,#1\n"        // 4 - 3 = 3 - 3 [jump] + 1 [not jump]      2 [1]                       _2
     "015$:\n"
     "    djnz r5,015$\n"     // Decrement register and jump if not Zero     2 [2/3]                  _13
-    "    nop    \n"             //                                                                      _14
+    "    nop    \n"          //                                                                      _14
 #elif (8000000 == F_CPU)
     // @8 MHz
     // 1:  high  6.4 clk, low  3.6 clk
     // 0:  high  3.2 clk, low  6.8 clk
 
-    "    jc    007$\n"         //                                  2 [1/3]
+    "    jc    007$\n"       //                                  2 [1/3]
     "    ljmp    008$\n"     //                                  3 [3]
 
     // bit "1" transmission
     "007$:\n"
     "    setb    _P5_5\n"    //                                  2 [1]                       1
-    "    nop    \n"             //                                                              2
-    "    nop    \n"             //                                                              3
-    "    nop    \n"             //                                                              4
-    "    nop    \n"             //                                                              5
-    "    nop    \n"             //                                                              6
-    "    clr    _P5_5\n"        //                                  2 [1]                       _1
+    "    nop    \n"          //                                                              2
+    "    nop    \n"          //                                                              3
+    "    nop    \n"          //                                                              4
+    "    nop    \n"          //                                                              5
+    "    nop    \n"          //                                                              6
+    "    clr    _P5_5\n"     //                                  2 [1]                       _1
     "    ljmp    004$\n"     //                                  3 [3]                       _4
 
     // bit "0" transmission
     "008$:\n"
     "    setb    _P5_5\n"    //                                  2 [1]                               1
-    "    nop    \n"             //                                                                      2
-    "    nop    \n"             //                                                                      3
-    "    clr    _P5_5\n"        //                                  2 [1]                               _1
-    // "    nop    \n"             //                                                                      _2
-    // "    nop    \n"             //                                                                      _3
-    // "    nop    \n"             //                                                                      _4
-    // "    nop    \n"             //                                                                      _5
-    // "    nop    \n"             //                                                                      _6
-    // "    nop    \n"             //                                                                      _7
+    "    nop    \n"          //                                                                      2
+    "    nop    \n"          //                                                                      3
+    "    clr    _P5_5\n"     //                                  2 [1]                               _1
+    // "    nop    \n"       //                                                                      _2
+    // "    nop    \n"       //                                                                      _3
+    // "    nop    \n"       //                                                                      _4
+    // "    nop    \n"       //                                                                      _5
+    // "    nop    \n"       //                                                                      _6
+    // "    nop    \n"       //                                                                      _7
 #elif (4000000 == F_CPU)
     // @4 MHz
     // 1:  high  3.2 clk, low  1.8 clk
     // 0:  high  1.6 clk, low  3.4 clk
 
-    "    jc    007$\n"         //                                  2 [1/3]
+    "    jc    007$\n"       //                                  2 [1/3]
     "    ljmp    008$\n"     //                                  3 [3]
 
     // bit "1" transmission
     "007$:\n"
     "    setb    _P5_5\n"    //                                  2 [1]                       1
-    "    nop    \n"             //                                                              2
-    "    nop    \n"             //                                                              3
-    "    clr    _P5_5\n"        //                                  2 [1]                       _1
+    "    nop    \n"          //                                                              2
+    "    nop    \n"          //                                                              3
+    "    clr    _P5_5\n"     //                                  2 [1]                       _1
     "    ljmp    004$\n"     //                                  3 [3]                       _2 + 2
 
     // bit "0" transmission
@@ -220,11 +220,11 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     // seemed to always interpret this still as a "1"-bit.
     // Commenting out this line and thus reducing the HIGH-duration to 250 ns is just in spec - and did
     // work. But I would not trust it to always work reliably.
-    // "    nop    \n"             //                                                                      2
+    // "    nop    \n"       //                                                                      2
 
-    "    clr    _P5_5\n"        //                                  2 [1]                               _1
-    // "    nop    \n"             //                                                                      _2
-    // "    nop    \n"             //                                                                      _3
+    "    clr    _P5_5\n"     //                                  2 [1]                               _1
+    // "    nop    \n"       //                                                                      _2
+    // "    nop    \n"       //                                                                      _3
 #else
     COMPILE_TIME_ASSERT(false); // frequency not supported
 #endif
@@ -241,7 +241,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     "    pop ar0\n"
     "    pop dph\n"
     "    pop dpl\n"
-    // "    push b\n" // unmodified in this function
+    // "    push b\n" // always restored in this function
     "    pop acc\n"
     "    pop _PSW\n" // indirectly modified with carry-flag
 
