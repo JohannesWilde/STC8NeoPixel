@@ -109,16 +109,16 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     "	mov	r6,#0x09\n"     // remainingBits = 8 + 1            2 [1]
 
     // apply "brightness"
-    "   push b\n" // backup memory type to stack
-    "   mov b, r7\n"
-    "   mul ab\n"           // b - high byte, a - low byte
-    "   clr c\n"
-    "   add a, r0\n"        // [datum + 1] * [brightness + 1] = [datum * brightness + datum + brightness] + 1
-    "   add a, r7\n"
-    "   mov a, b\n"
-    "   addc a,#0\n"
-    "   pop b\n"
-    "	mov	r0,a\n"
+    "   push b\n"           // backup memory type to stack      2 [1]
+    "   mov b, r7\n"        //                                  2 [1]
+    "   mul ab\n"           // b - high byte, a - low byte      1 [2]
+    "   clr c\n"            //                                  1 [1]
+    "   add a, r0\n"        // [datum + 1] * [brightness + 1] = [datum * brightness + datum + brightness] + 1       1 [1]
+    "   add a, r7\n"        //                                  1 [1]
+    "   mov a, b\n"         //                                  2 [1]
+    "   addc a,#0\n"        //                                  2 [1]
+    "   pop b\n"            //                                  2 [1]
+    "	mov	r0,a\n"         // restore memory type from stack   1 [1]
 
     "004$:\n"
     "	djnz r6, 005$\n"    // if (0 != --remainingBits)        2 [2/3]
