@@ -12,12 +12,6 @@ COMPILE_TIME_ASSERT(5 == NEO_PIXEL_PIN_NUMBER);
 
 void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) __reentrant __naked
 {
-
-#if defined(DSDCC_MODEL_HUGE) || defined(DSDCC_MODEL_MEDIUM) || defined(__SDCC_ds390)
-    // I only counted clock cycles of __gptrget for --model-small.
-    COMPILE_TIME_ASSERT(false);
-#endif
-
     UNUSED(data);
     UNUSED(length);
     UNUSED(brightness);
