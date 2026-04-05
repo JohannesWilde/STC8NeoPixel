@@ -24,7 +24,7 @@
 #define LED_PIN_NUMBER 2
 
 #define NEO_PIXEL_PORT_NUMBER 5
-#define NEO_PIXEL_PIN_NUMBER 5
+#define NEO_PIXEL_PIN_NUMBER 4
 
 
 
