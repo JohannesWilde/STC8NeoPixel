@@ -1,12 +1,17 @@
 
+# add_library(WS2812
+# )
+
 add_executable(${PROJECT_NAME}
     8051_helpers.h
     main.c
     stc8g.h
+    ws2812.h
+    ws2812.c
 )
 
 # target_link_libraries(${PROJECT_NAME}
-#     PRIVATE
+#     PRIVATE WS2812
 # )
 
 ihx_to_hex(${PROJECT_NAME})
