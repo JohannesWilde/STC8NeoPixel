@@ -279,7 +279,7 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     );
 }
 
-#define BRIGHTNESS_DELTA_STEP 5
+#define BRIGHTNESS_DELTA_STEP 1
 
 static uint8_t colorBrightness;
 static uint8_t colorDelta = BRIGHTNESS_DELTA_STEP;
@@ -318,6 +318,17 @@ void main()
 
     interrupts(); // enable interrupts
 
+
+    neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0xff;
+    neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0xff;
+    neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0xff;
+    neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0xff;
+    neoPixelData[4 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0xff;
+    neoPixelData[5 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = 0xff;
+    neoPixelData[6 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = 0xff;
+    neoPixelData[7 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = 0xff;
+    neoPixelData[8 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = 0xff;
+
     while (true)
     {
         if (BRIGHTNESS_DELTA_STEP > colorBrightness)
@@ -335,17 +346,7 @@ void main()
 
         colorBrightness = colorBrightness + colorDelta;
 
-        neoPixelData[0 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = colorBrightness;
-        neoPixelData[1 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = colorBrightness;
-        neoPixelData[2 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = colorBrightness;
-        neoPixelData[3 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = colorBrightness;
-        neoPixelData[4 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = colorBrightness;
-        neoPixelData[5 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_GREEN]  = colorBrightness;
-        neoPixelData[6 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_BLUE]   = colorBrightness;
-        neoPixelData[7 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = colorBrightness;
-        neoPixelData[8 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = colorBrightness;
-
-        show(neoPixelData, /*bytes*/ 9 * NEO_PIXEL_DATA_BYTES_PER_PIXEL, /*brightness*/ 255);
+        show(neoPixelData, /*bytes*/ 9 * NEO_PIXEL_DATA_BYTES_PER_PIXEL, /*brightness*/ colorBrightness);
 
         if (updatePrescaler(&preScalerOne, PRE_SCALER_ONE_INIT))
         {
