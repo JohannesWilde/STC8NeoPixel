@@ -6,6 +6,10 @@
 #include "unused.h"
 
 
+// Must match pin used in asm below [_P5_5].
+COMPILE_TIME_ASSERT(5 == NEO_PIXEL_PORT_NUMBER);
+COMPILE_TIME_ASSERT(5 == NEO_PIXEL_PIN_NUMBER);
+
 void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) __reentrant __naked
 {
 
