@@ -42,7 +42,7 @@ static uint8_t neoPixelData[9 * NEO_PIXEL_DATA_BYTES_PER_PIXEL];
 
 
 
-void show(uint8_t const * data, uint8_t const length) __reentrant __naked
+void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) __reentrant __naked
 {
 
 #if defined(DSDCC_MODEL_HUGE) || defined(DSDCC_MODEL_MEDIUM) || defined(__SDCC_ds390)
@@ -52,6 +52,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
 
     UNUSED(data);
     UNUSED(length);
+    UNUSED(brightness);
 
     // WS2812B
     // 1:  high 0.80 us, low 0.45 us
@@ -66,7 +67,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     // r4 - remainingBytes
     // r5 - counter
     // r6 - remainingBits
-    // r7 -
+    // r7 - brightness
 
     __asm__ (
     "	push _bp\n"
@@ -81,6 +82,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	push ar4\n"
     "	push ar5\n"
     "	push ar6\n"
+    "	push ar7\n"
 
     "   orl _PSW,#0x18\n"     // select register bank 0 explicitely
 
@@ -90,6 +92,13 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	mov	a,@r0\n"
     "	mov	r4,a\n"         // r4 = byteLength = "remainingBytes"
     "   inc r4\n"             // Increment r4 so that djnz can decrement and then compare to 0 the right amount of times.
+
+    "	mov	a,_bp\n"        // readout "brightness" from stack [--stack-auto or reentrant].
+    "	add	a,#0xfc\n"      // stack frame address - 4 [_bp, return address from lcall, "length"]
+    "	mov	r0,a\n"
+    "	mov	a,@r0\n"
+    "	mov	r7,a\n"         // r7 = "brightness"
+
     "001$:\n"
     "	djnz r4, 002$\n"    // if (0 != --remainingBytes)       2 [2/3]
     "	ljmp	003$\n"     // else                             3 [3]
@@ -98,6 +107,19 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
     "	mov	r0,a\n"         // r0 = datum = data[byteIndex]
     "	inc dptr\n"         // ++byteIndex                      1 [1]
     "	mov	r6,#0x09\n"     // remainingBits = 8 + 1            2 [1]
+
+    // apply "brightness"
+    "   push b\n" // backup memory type to stack
+    "   mov b, r7\n"
+    "   mul ab\n"           // b - high byte, a - low byte
+    "   clr c\n"
+    "   add a, r0\n"        // [datum + 1] * [brightness + 1] = [datum * brightness + datum + brightness] + 1
+    "   add a, r7\n"
+    "   mov a, b\n"
+    "   addc a,#0\n"
+    "   pop b\n"
+    "	mov	r0,a\n"
+
     "004$:\n"
     "	djnz r6, 005$\n"    // if (0 != --remainingBits)        2 [2/3]
     "	ljmp	001$\n"     //                                  3 [3]
@@ -240,6 +262,7 @@ void show(uint8_t const * data, uint8_t const length) __reentrant __naked
 
     "003$:\n"
 
+    "	pop ar7\n"
     "	pop ar6\n"
     "	pop ar5\n"
     "	pop ar4\n"
@@ -322,7 +345,7 @@ void main()
         neoPixelData[7 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_WHITE]  = colorBrightness;
         neoPixelData[8 * NEO_PIXEL_DATA_BYTES_PER_PIXEL + NEO_PIXEL_DATA_OFFSET_RED]    = colorBrightness;
 
-        show(neoPixelData, /*bytes*/ 9 * NEO_PIXEL_DATA_BYTES_PER_PIXEL);
+        show(neoPixelData, /*bytes*/ 9 * NEO_PIXEL_DATA_BYTES_PER_PIXEL, /*brightness*/ 255);
 
         if (updatePrescaler(&preScalerOne, PRE_SCALER_ONE_INIT))
         {
