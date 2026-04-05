@@ -34,6 +34,16 @@ void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) 
     // r7 - brightness
 
     __asm__ (
+    "; Define register names [this is not an assignment of values but a definition of symbols].\n"
+    "    ar7 = 0x07\n"
+    "    ar6 = 0x06\n"
+    "    ar5 = 0x05\n"
+    "    ar4 = 0x04\n"
+    "    ar3 = 0x03\n"
+    "    ar2 = 0x02\n"
+    "    ar1 = 0x01\n"
+    "    ar0 = 0x00\n"
+
     "    push _bp\n"
     "    mov    _bp,sp\n"
 
