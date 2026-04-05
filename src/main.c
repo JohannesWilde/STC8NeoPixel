@@ -1,4 +1,5 @@
 #include "8051_helpers.h"
+#include "configuration.h"
 #include "pinout.h"
 #include "prescaler.h"
 #include "static_assert.h"
@@ -10,20 +11,9 @@
 #include <stdint.h>
 
 
-#define LED_PORT_NUMBER 1
-#define LED_PIN_NUMBER 2
 #define LED_PIN MAKE_PIN_NAME(LED_PORT_NUMBER, LED_PIN_NUMBER)
-
-#define NEO_PIXEL_PORT_NUMBER 5
-#define NEO_PIXEL_PIN_NUMBER 5
 #define NEO_PIXEL_PIN MAKE_PIN_NAME(NEO_PIXEL_PORT_NUMBER, NEO_PIXEL_PIN_NUMBER)
 
-
-#define F_WAKEUP_TIMER 36075  // Hz
-#define F_IRC 24000000ull  // Hz
-#define CLOCK_DIVISOR 3
-#define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
-#define F_SYS_TICK 20  // Hz
 
 // Prescaler for different time domains.
 // 20 Hz -> 2 Hz
