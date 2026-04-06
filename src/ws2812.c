@@ -12,11 +12,12 @@
 #define NEO_PIXEL_ASM_PIN_STRING MAKE_ASM_PIN_NAME(NEO_PIXEL_PORT_NUMBER, NEO_PIXEL_PIN_NUMBER)
 
 
-void show(uint8_t const * data, uint8_t const length, uint8_t const brightness)
+void show(uint8_t const * data, uint8_t const length, uint8_t const brightness) __reentrant
 {
     for (uint8_t byteIndex = length; 0 < byteIndex; --byteIndex)
     {
-        uint8_t datum = (((uint16_t)(*data)) * brightness) >> 8;
+        // Scale [0, 255] linearly to [0, 65535].
+        uint8_t datum = ((((uint16_t)(*data) + 1) * (brightness + 1)) - 1) >> 8;
         ++data;
 
         for (uint8_t bitIndex = 8; 0 < bitIndex; --bitIndex)
